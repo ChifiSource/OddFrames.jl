@@ -1,5 +1,6 @@
 module OddFrames
-import Base: getindex
+include("iter.jl")
+include("indexing.jl")
 _css = "
 <style>
 table.classic {
@@ -88,13 +89,19 @@ function _head(lookup::Dict, count::Int64 = 5; style::String = "classic")
 end
 
 end
-
-getindex(od::OddFrame, col::Symbol) = od.lookup[col]
-getindex(od::OddFrame, col::String) = od.lookup[Symbol(col)]
-function eachrow(of::OddFrame)
-    cols = values(of.lookup)
-    [[row[i] for row in cols] for i in 1:length(cols[1])]
+function drop(od::DataFrame, symb::Symbol)
+    new_cop = Dict()
+    for (key, val) in od.lookup
+        if key != symb
+            push!(new_cop, key => val)
+        end
+    end
+    return(OddFrame(new_cop))
 end
-eachcol(od::OddFrame) = values(od.lookup)
-export OddFrame, getindex, eachrow, eachcol
+function drop(od::DataFrame, row::Int64)
+    vals = [splice!(val[2], row) for val in d.lookup]
+    return(OddFrame(vals))
+end
+
+export OddFrame, getindex, eachrow, eachcol, drop
 end
