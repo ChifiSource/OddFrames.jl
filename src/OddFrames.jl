@@ -146,30 +146,20 @@ abstract type AbstractOddFrame end
 mutable struct OddFrame{head} <: AbstractOddFrame
     lookup::Dict
     head::head
-
     function OddFrame(lookup::Dict)
-        head(count; style = "classic") = _head(lookup, count, style)
+        head(count; style = "classic") = _head(lookup, count, style = style)
         new{typeof(head)}(lookup, head)
     end
-
-"""
-# show(df::DataFrame; style)
-The show() method can be used to display a DataFrame in IJulia notebooks. The
-style key-word argument can be used to change the appearance of the DataFrame
-output.
-### Styles
-- classic
-- minimalist
-"""
-function _head(lookup::Dict, count = 5; style = "classic")
+function _head(lookup::Dict, count::Int64 = 5; style::String = "classic")
     thead = "<thead>
 <tr>"
     tbody = "<tbody>"
     [thead = string(thead, "<th>", string(name), "</th>") for name in keys(lookup)]
     thead = string(thead, "</thead>")
     cols = values(lookup)
-    for i in 1:length(cols[1])
-        obs = [row[i] for row in cols]
+    features = [push!(val) for val in cols]
+    for i in 1:length(features[1])
+        obs = [row[i] for row in features]
         tbody = string(tbody, "<tr>")
         [tbody = string(tbody, "<td>", observ, "</td>") for observ in obs]
         tbody = string(tbody, "</tr>")
@@ -186,7 +176,7 @@ getindex(od::OddFrame, col::Symbol) = od.lookup[col]
 getindex(od::OddFrame, col::String) = od.lookup[Symbol(col)]
 function eachrow(of::OddFrame)
     cols = values(of.lookup)
-    [row[i] for row in cols for i in 1:length(cols[1])]
+    [[row[i] for row in cols] for i in 1:length(cols[1])]
 end
 eachcol(od::OddFrame) = values(od.lookup)
 export OddFrame, getindex, eachrow, eachcol
