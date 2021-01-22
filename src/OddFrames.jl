@@ -98,8 +98,9 @@ function drop(od::DataFrame, symb::Symbol)
     end
     return(OddFrame(new_cop))
 end
-function drop(od::DataFrame, row::Int64)
-    vals = [splice!(val[2], row) for val in d.lookup]
+function drop(od::OddFrame, row::Int64)
+    vals = d.lookup
+    [splice!(val[2], row) for val in vals]
     return(OddFrame(vals))
 end
 
