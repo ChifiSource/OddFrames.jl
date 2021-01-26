@@ -35,7 +35,12 @@ function _head(lookup::Dict, count::Int64 = 5; style::String = "classic")
     tbody = string(tbody, "</tbody>")
     compisition = string(_css,"<table class = \"", style, "\">",
      thead, tbody,"</table>")
-    display("text/html", compisition)
+     try
+         display("text/html", compisition)
+     catch
+         md = ""
+         throw("Terminal display has not yet been implemented.")
+    end
 end
 
 end
