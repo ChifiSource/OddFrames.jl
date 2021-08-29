@@ -69,6 +69,7 @@ mutable struct OddFrame <: AbstractOddFrame
                                         if typeof(feature) == String
                                                 feature_type = :Location
                                         end
+                                end
                         else
                                 feature_type = :Categorical
                         end
