@@ -3,6 +3,7 @@ function read_csv(csv_path::String)
     rows = split(readstr, '\n')
     columns = split(rows[1], ',')
     values = [[] for col in columns]
+    columns = Array{Symbol}(columns)
     deleteat!(rows, 1)
     for row in rows
         data = (split(row, ','))
@@ -10,5 +11,5 @@ function read_csv(csv_path::String)
             push!(values[col], data[col])
         end
     end
-    return(values, columns)
+    return(columns, values)
 end
