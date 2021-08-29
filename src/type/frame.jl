@@ -103,14 +103,12 @@ mutable struct OddFrame <: AbstractOddFrame
         ==#
         function length_check(ps)
                 ourlen = length(ps[1])
-                [if length(x) != ourlen throw(DimensionMismatch(
-                "Columns must be the same size")) for x in ps]
+                [if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) for x in ps]
         end
 
         function name_check(labels)
                 if length(set(labels)) != length(labels)
-                        throw(StringIndexError("Column names may not
-                         be duplicated!"))
+                        throw(StringIndexError("Column names may notbe duplicated!"))
                 end
         end
         #==
