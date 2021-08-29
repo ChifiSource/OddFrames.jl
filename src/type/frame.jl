@@ -16,21 +16,21 @@ mutable struct OddFrame <: AbstractOddFrame
         ==#
         function OddFrame(p::Pair ...)
                 # Labels/Columns
-                labels = [p[1] for pair in p]
-                columns = [p[2] for pair in p]
+                labels = [pair[1] for pair in p]
+                columns = [pair[2] for pair in p]
                 length_check(columns)
                 name_check(labels)
                 # coldata
                 coldata = generate_coldata(columns)
                 # Head
-                head(x::Int64) = _head(labels, columns, x)
-                head() = _head(labels, columns, 5)
+                head(x::Int64) = _head(labels, columns, coldata, x)
+                head() = _head(labels, columns, coldata, 5)
                 # Drop
                 drop(x::Int64) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
                 # type
-                new(labels, columns, coldata, head, drop)
+                new(labels, columns, coldata, head, drop);
         end
         function OddFrame(file_path::String)
                 # Labels/Columns
@@ -43,13 +43,13 @@ mutable struct OddFrame <: AbstractOddFrame
                 coldata = generate_coldata(columns)
                 # Head
                 head(x::Int64) = _head(labels, columns, coldata, x)
-                head() = _head(labels, columns, coldata,  5)
+                head() = _head(labels, columns, coldata, 5)
                 # Drop
-                drop(x::Int64) = _drop(x, columns)
+                drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
                 # type
-                new(labels, columns, coldata, head, drop)
+                new(labels, columns, coldata, head, drop);
         end
         #==
         Supporting
@@ -60,7 +60,7 @@ mutable struct OddFrame <: AbstractOddFrame
                 coldatas = []
                 for column in columns
                         feature_type = :Undetermined
-                        if set(column[1]) >= length(columns[1]) * .25
+                        if length(Set(column)) >= length(column) * .5
                                 feature_type = :Continuous
                                 try
                                         Date(column[1])
@@ -79,22 +79,22 @@ mutable struct OddFrame <: AbstractOddFrame
                                 "\n Minimum: ", minimum(column),
                                  "\n Maximum: ", maximum(column)
                                 )
-                        if feature_type == :Categorical
+                        elseif feature_type == :Categorical
                                 u=unique(column)
                                 d=Dict([(i,count(x->x==i, column)) for i in u])
                                 d = sort(collect(d), by=x->x[2])
-                                maxkey = d[length(d)]
                                 coldata = string("Feature Type: ",
                                 feature_type, "\n Categories: ",
-                                 length(set((column))),
-                                "\n Majority: ", maxkey
+                                 length(Set((column))),
+                                "\n Majority: "
                                 )
                         else
                                 coldata = string("Feature Type: ",
                                 feature_type)
                         end
-                        append!(coldatas, coldata)
+                        push!(coldatas, coldata)
                 end
+                print(coldatas)
                 return(coldatas)
         end
 
@@ -103,12 +103,16 @@ mutable struct OddFrame <: AbstractOddFrame
         ==#
         function length_check(ps)
                 ourlen = length(ps[1])
-                [if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) for x in ps]
+                [if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
         end
 
         function name_check(labels)
-                if length(set(labels)) != length(labels)
-                        throw(StringIndexError("Column names may notbe duplicated!"))
+                if length(Set(labels)) != length(labels)
+                        println(labels)
+                        println(Set(labels))
+                        println(length(labels))
+                        println(length(Set(labels)))
+                        throw(ErrorException("Column names may not be duplicated!"))
                 end
         end
         #==
@@ -116,22 +120,22 @@ mutable struct OddFrame <: AbstractOddFrame
             methods
             ==#
         function _head(labels::Array{Symbol},
-                columns::Array{Any}, coldata::Array{String}, count::Int64)
+                columns::Array, coldata::Array, count::Int64)
                 # Create t-header and t-body tags
                 thead = "<thead><tr>"
                 tbody = "<tbody>"
                 # populate row headers
-                [thead = string(thead, "<th ","title = ",
-                coldata[n], ">",  string(name),
+                [thead = string(thead, "<th ","title = \"",
+                coldata[n], "\">",  string(name),
                  "</th>") for (n, name) in enumerate(labels)]
                  # finish t-head
                  thead = string(thead, "</tr></thead>")
                  # populate each row iteratively.
                  for i in 1:count
-                         obs = [row[i] for row in labels]
+                         obs = [row[i] for row in columns]
                          tbody = string(tbody, "<tr>")
                          [tbody = string(tbody, "<td ",
-                         "title = ", coldata[count], ">"
+                         "title = \"", coldata[count], "\">"
                          , observ,
         "</td>") for (count, observ) in enumerate(obs)]
                         tbody = string(tbody, "</tr>")
@@ -148,8 +152,8 @@ mutable struct OddFrame <: AbstractOddFrame
         end
 
         function _drop(column::Symbol, labels::Array{Symbol}, columns::Array,
-                coldata::Array{String})
-                pos = findall(x->x==col, labels)
+                coldata::Array)
+                pos = findall(x->x==column, labels)[1]
                 deleteat!(labels, pos)
                 deleteat!(coldata, pos)
                 deleteat!(columns, pos)
@@ -158,7 +162,9 @@ mutable struct OddFrame <: AbstractOddFrame
         function _drop(row::Int64, columns::Array)
                 [deleteat!(col, row) for col in columns]
         end
-
+        function _drop(row::Array, columns::Array)
+                [deleteat!(col, row) for col in columns]
+        end
 
 end
 
@@ -168,12 +174,14 @@ end
 Indexing
 ===#
 function getindex(od::AbstractOddFrame, col::Symbol)
-        return(od.columns[findall(x->x==col, od.labels)])
+        pos = findall(x->x==col, od.labels)[1]
+        return(od.columns[pos])
 end
 getindex(od::AbstractOddFrame, col::String) = od[Symbol(col)]
-getindex(axis::Int64) =
+getindex(od::AbstractOddFrame, axis::Int64) = od.columns[axis]
 function getindex(od::OddFrame, mask::BitArray)
-    [if mask[i] == 0 drop(od, i) end for i in 1:length(mask)]
+        pos = findall(x->x==0, mask)[1]
+        od.drop(pos)
 end
 
 #===
