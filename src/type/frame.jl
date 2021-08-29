@@ -62,19 +62,23 @@ mutable struct OddFrame <: AbstractOddFrame
                         feature_type = :Undetermined
                         if length(Set(column)) >= length(column) * .5
                                 feature_type = :Continuous
-                                try
-                                        Date(column[1])
+                                if typeof(column[1]) == Date
                                         feature_type = :Date
-                                catch
-                                        if typeof(feature) == String
-                                                feature_type = :Location
+                                elseif typeof(column[1]) == String
+                                        if cchar('-', column[1] >= 2)
+                                                feature_type = :Date
+                                        elseif cchar(':', column[1] >= 1)
+                                                feature_type = :Time
+                                        else
+                                                feature_type = :Categorical
                                         end
                                 end
                         else
                                 feature_type = :Categorical
                         end
                         if feature_type == :Continuous
-                                coldata = string("Feature Type: ",
+                                coldata = string("data-type: ",
+                                typeof(column[1]), "\n Feature Type: ",
                                 feature_type, "\n Mean: ", mean(column),
                                 "\n Minimum: ", minimum(column),
                                  "\n Maximum: ", maximum(column)
@@ -83,13 +87,15 @@ mutable struct OddFrame <: AbstractOddFrame
                                 u=unique(column)
                                 d=Dict([(i,count(x->x==i, column)) for i in u])
                                 d = sort(collect(d), by=x->x[2])
-                                coldata = string("Feature Type: ",
+                                coldata = string("data-type: ",
+                                typeof(column[1]), "\n Feature Type: ",
                                 feature_type, "\n Categories: ",
                                  length(Set((column))),
                                 "\n Majority: "
                                 )
                         else
-                                coldata = string("Feature Type: ",
+                                coldata = string("data-type: ",
+                                typeof(column[1]),"\n Feature Type: ",
                                 feature_type)
                         end
                         push!(coldatas, coldata)
@@ -97,6 +103,20 @@ mutable struct OddFrame <: AbstractOddFrame
                 print(coldatas)
                 return(coldatas)
         end
+        function cchar(t::Union{AbstractString,Regex,AbstractChar},
+                 s::AbstractString; overlap::Bool=false)
+           n = 0
+           i, e = firstindex(s), lastindex(s)
+           while true
+               r = findnext(t, s, i)
+               isnothing(r) && break
+               n += 1
+               j = overlap || isempty(r) ? first(r) : last(r)
+               j > e && break
+               @inbounds i = nextind(s, j)
+           end
+           return n
+       end
 
         #==
         THROWS
