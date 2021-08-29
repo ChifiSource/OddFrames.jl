@@ -9,6 +9,8 @@
 - **TODO** Add image URI to feature-types.
 - **TODO** Add ! for mutating methods
 - **TODO** Add immutableoddframe with tuples and an immutable type.
+- **New Feature** added dropna()
+- Added iterators for calling columns or labels, etc.
 #### 0.0.4 REWORK
 - Reworked the handling of indexes.
 - Added shape() method
