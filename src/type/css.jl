@@ -1,59 +1,113 @@
 _css = "
 <style>
-table.classic {
-  width: 100%;
-  height: 200px;
-  text-align: left;
-  border-collapse: collapse;
+body {
+    background: #fafafa url(https://jackrugile.com/images/misc/noise-diagonal.png);
+    color: #444;
+    font: 100%/30px 'Helvetica Neue', helvetica, arial, sans-serif;
+    text-shadow: 0 1px 0 #fff;
 }
-table.classic td, table.classic th {
-  padding: 5px 4px;
+
+strong {
+    font-weight: bold;
 }
-table.classic tbody td {
-  font-size: 13px;
+
+em {
+    font-style: italic;
 }
-table.classic tr:nth-child(even) {
-  background: #F9F9F9;
+
+table {
+    background: #f5f5f5;
+    border-collapse: separate;
+    box-shadow: inset 0 1px 0 #fff;
+    font-size: 12px;
+    line-height: 24px;
+    margin: 30px auto;
+    text-align: left;
+    width: 800px;
 }
-table.classic thead {
-  background: #CFCFCF;
-  background: -moz-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
-  background: -webkit-linear-gradient(top, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
-  background: linear-gradient(to bottom, #dbdbdb 0%, #d3d3d3 66%, #CFCFCF 100%);
-  border-bottom: 3px solid #CDCDCD;
-}
-table.classic thead th {
-  font-size: 15px;
+
+th {
+    background: url(https://jackrugile.com/images/misc/noise-diagonal.png), linear-gradient(#777, #444);
+    border-left: 1px solid #555;
+    border-right: 1px solid #777;
+    border-top: 1px solid #555;
+    border-bottom: 1px solid #333;
+    box-shadow: inset 0 1px 0 #999;
+    color: #fff;
   font-weight: bold;
-  color: #424242;
-  text-align: left;
+    padding: 10px 15px;
+    position: relative;
+    text-shadow: 0 1px 0 #000;
 }
-table.jupyter {
-  width: 100%;
-  height: 200px;
-  text-align: left;
-  border-collapse: collapse;
+
+th:after {
+    background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,.08));
+    content: '';
+    display: block;
+    height: 25%;
+    left: 0;
+    margin: 1px 0 0 0;
+    position: absolute;
+    top: 25%;
+    width: 100%;
 }
-table.jupyter td, table.jupyter th {
-  padding: 5px 4px;
+
+th:first-child {
+    border-left: .5px solid #777;
+    box-shadow: inset 1px 1px 0 #999;
 }
-table.jupyter tbody td {
-  font-size: 13px;
+
+th:last-child {
+    box-shadow: inset -1px 1px 0 #999;
 }
-table.jupyter tr:nth-child(even) {
-  background: #F9E5D0;
+
+td {
+    border-right: 1px solid #fff;
+    border-left: 1px solid #e8e8e8;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #e8e8e8;
+    padding: 10px 15px;
+    position: relative;
+    transition: all 300ms;
 }
-table.jupyter thead {
-  background: #FC7A3D;
-  background: -moz-linear-gradient(top, #fd9b6d 0%, #fc8750 66%, #FC7A3D 100%);
-  background: -webkit-linear-gradient(top, #fd9b6d 0%, #fc8750 66%, #FC7A3D 100%);
-  background: linear-gradient(to bottom, #fd9b6d 0%, #fc8750 66%, #FC7A3D 100%);
+
+td:first-child {
+    box-shadow: inset 1px 0 0 #fff;
 }
-table.jupyter thead th {
-  font-size: 15px;
-  font-weight: bold;
-  color: #FFFFFF;
-  text-align: left;
+
+td:last-child {
+    border-right: 1px solid #e8e8e8;
+    box-shadow: inset -1px 0 0 #fff;
+}
+
+tr {
+    background: url(https://jackrugile.com/images/misc/noise-diagonal.png);
+}
+
+tr:nth-child(odd) td {
+    background: #f1f1f1 url(https://jackrugile.com/images/misc/noise-diagonal.png);
+}
+
+tr:last-of-type td {
+    box-shadow: inset 0 -1px 0 #fff;
+}
+
+tr:last-of-type td:first-child {
+    box-shadow: inset 1px -1px 0 #fff;
+}
+
+tr:last-of-type td:last-child {
+    box-shadow: inset -1px -1px 0 #fff;
+}
+
+tbody:hover td {
+    color: transparent;
+    text-shadow: 0 0 3px #aaa;
+}
+
+tbody:hover tr:hover td {
+    color: #444;
+    text-shadow: 0 1px 0 #fff;
 }
 </style>
 "

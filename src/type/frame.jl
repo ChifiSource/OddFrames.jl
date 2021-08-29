@@ -2,14 +2,6 @@ include("css.jl")
 using Lathe.stats: mean
 using Dates
 import Base: getindex
-#=========
-o=o= Heirarchy overview =o=o
-|AbstractOddFrame
-|_____ OddFrame
-|_____ ImmutableOddFrame
-|_____ ImageOddFrame
-=========#
-abstract type AbstractOddFrame end
 #=============
 OddFrame Type
 =============#
@@ -36,8 +28,8 @@ mutable struct OddFrame <: AbstractOddFrame
                 extension = split(file_path, '.')[2]
                 values, columns = extensions[extension](file_path)
                 coldata = generate_coldata(columns)
-                head(x::Int64) = _head(labels, columns, x)
-                head() = _head(labels, columns, 5)
+                head(x::Int64) = _head(labels, columns, coldata, x)
+                head() = _head(labels, columns, coldata,  5)
                 new(labels, columns, coldata, head, drop)
         end
         #==
@@ -90,26 +82,30 @@ mutable struct OddFrame <: AbstractOddFrame
             methods
             ==#
         function _head(labels::Array{Symbol},
-                columns::Array{Any}, count::Int64)
+                columns::Array{Any}, coldata::Array{String}, count::Int64)
                 # Create t-header and t-body tags
                 thead = "<thead><tr>"
                 tbody = "<tbody>"
                 # populate row headers
-                [thead = string(thead, "<th>", string(name),
-                 "</th>") for name in labels]
+                [thead = string(thead, "<th ","title = ",
+                coldata[n], ">",  string(name),
+                 "</th>") for (n, name) in enumerate(labels)]
                  # finish t-head
                  thead = string(thead, "</tr></thead>")
                  # populate each row iteratively.
                  for i in 1:count
                          obs = [row[i] for row in labels]
                          tbody = string(tbody, "<tr>")
-                         [tbody = string(tbody, "<td>", observ,
+                         [tbody = string(tbody, "<td ",
+                         "title = ", coldata[count], ">"
+                         , observ,
         "</td>") for (count, observ) in enumerate(obs)]
                         tbody = string(tbody, "</tr>")
                  end
                  # Finish tags:
                  tbody = string(tbody, "</tbody>")
-                 final = string("<table>", thead, tbody, "</table")
+                 final = string("<body><table>", thead, tbody,
+                  "</table></body>", _css)
                  # Display
                  # TODO: Figure out how to determine whether one is in
                  #    the REPL, prefereably before any of this function is
@@ -117,11 +113,11 @@ mutable struct OddFrame <: AbstractOddFrame
                  display("text/html", final)
         end
 
-        function _drop(lookup::Dict, column::Symbol)
+        function _drop(column::Symbol)
                 delete!(lookup, column)
         end
 
-        function _drop(lookup::Dict, row::Int64)
+        function _drop(row::Int64)
                 [splice!(val[2], row) for val in lookup]
         end
 
