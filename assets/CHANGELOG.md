@@ -1,6 +1,6 @@
 # CHANGES
 ### Labels - Bug fix - TODO - New Feature - Not Implemented
-#### 0.0.4 FIXES AND ADDITIONS
+#### 0.0.5 FIXES AND ADDITIONS
 - **Bug fix** Fixed problem with boolean indexing!
 - **Bug fix** Fixed the issue with bad feature-type labeling.
 - Extended the abilities of the feature-type determiner.
