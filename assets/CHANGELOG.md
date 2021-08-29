@@ -7,6 +7,8 @@
 - **TODO** Add more information for dates and times.
 - **TODO** Add majority class for classes.
 - **TODO** Add image URI to feature-types.
+- **TODO** Add ! for mutating methods
+- **TODO** Add immutableoddframe with tuples and an immutable type.
 #### 0.0.4 REWORK
 - Reworked the handling of indexes.
 - Added shape() method
