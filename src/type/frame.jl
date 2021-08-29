@@ -15,21 +15,40 @@ mutable struct OddFrame <: AbstractOddFrame
         Constructors
         ==#
         function OddFrame(p::Pair ...)
+                # Labels/Columns
                 labels = [p[1] for pair in p]
                 columns = [p[2] for pair in p]
                 length_check(columns)
+                name_check(labels)
+                # coldata
                 coldata = generate_coldata(columns)
+                # Head
                 head(x::Int64) = _head(labels, columns, x)
                 head() = _head(labels, columns, 5)
+                # Drop
+                drop(x::Int64) = _drop(x, columns)
+                drop(x::Symbol) = _drop(x, labels, columns, coldata)
+                drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
+                # type
                 new(labels, columns, coldata, head, drop)
         end
         function OddFrame(file_path::String)
+                # Labels/Columns
                 extensions = Dict(".csv" => read_csv)
                 extension = split(file_path, '.')[2]
-                values, columns = extensions[extension](file_path)
+                labels, columns = extensions[extension](file_path)
+                length_check(columns)
+                name_check(labels)
+                # Coldata
                 coldata = generate_coldata(columns)
+                # Head
                 head(x::Int64) = _head(labels, columns, coldata, x)
                 head() = _head(labels, columns, coldata,  5)
+                # Drop
+                drop(x::Int64) = _drop(x, columns)
+                drop(x::Symbol) = _drop(x, labels, columns, coldata)
+                drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
+                # type
                 new(labels, columns, coldata, head, drop)
         end
         #==
@@ -77,6 +96,22 @@ mutable struct OddFrame <: AbstractOddFrame
                 end
                 return(coldatas)
         end
+
+        #==
+        THROWS
+        ==#
+        function length_check(ps)
+                ourlen = length(ps[1])
+                [if length(x) != ourlen throw(DimensionMismatch(
+                "Columns must be the same size")) for x in ps]
+        end
+
+        function name_check(labels)
+                if length(set(labels)) != length(labels)
+                        throw(StringIndexError("Column names may not
+                         be duplicated!"))
+                end
+        end
         #==
         Child
             methods
@@ -113,22 +148,19 @@ mutable struct OddFrame <: AbstractOddFrame
                  display("text/html", final)
         end
 
-        function _drop(column::Symbol)
-                delete!(lookup, column)
+        function _drop(column::Symbol, labels::Array{Symbol}, columns::Array,
+                coldata::Array{String})
+                pos = findall(x->x==col, labels)
+                deleteat!(labels, pos)
+                deleteat!(coldata, pos)
+                deleteat!(columns, pos)
         end
 
-        function _drop(row::Int64)
-                [splice!(val[2], row) for val in lookup]
+        function _drop(row::Int64, columns::Array)
+                [deleteat!(col, row) for col in columns]
         end
 
-        #==
-        THROWS
-        ==#
-        function length_check(lookup)
-                ourlen = length(ps[1])
-                [if length(x) != ourlen throw(DimensionMismatch(
-                "Columns must be the same size")) for x in ps]
-        end
+
 end
 
 
@@ -136,8 +168,11 @@ end
 #===
 Indexing
 ===#
-getindex(od::OddFrame, col::Symbol) = od.lookup[col]
-getindex(od::OddFrame, col::String) = od.lookup[Symbol(col)]
+function getindex(od::AbstractOddFrame, col::Symbol)
+        return(od.columns[findall(x->x==col, od.labels)])
+end
+getindex(od::AbstractOddFrame, col::String) = od[Symbol(col)]
+getindex(axis::Int64) =
 function getindex(od::OddFrame, mask::BitArray)
     [if mask[i] == 0 drop(od, i) end for i in 1:length(mask)]
 end
@@ -146,3 +181,8 @@ end
 Iterators
 ===#
 # TODO Add column/row iterators for for loop iterator calls.
+#===
+Methods
+===#
+# TODO Move methods to different file, methods.jl
+shape(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
