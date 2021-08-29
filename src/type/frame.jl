@@ -182,8 +182,13 @@ mutable struct OddFrame <: AbstractOddFrame
         function _drop(row::Int64, columns::Array)
                 [deleteat!(col, row) for col in columns]
         end
+
         function _drop(row::Array, columns::Array)
                 [deleteat!(col, row) for col in columns]
+        end
+
+        function _dropna(columns::Array)
+                
         end
 
 end
@@ -207,9 +212,7 @@ end
 #===
 Iterators
 ===#
-# TODO Add column/row iterators for for loop iterator calls.
-#===
-Methods
-===#
-# TODO Move methods to different file, methods.jl
-shape(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
+columns(od::OddFrame) = od.columns
+labels(od::OddFrame) = od.labels
+names(od::OddFrame) = od.labels
+pairs(od::OddFrame) = [od.labels[i] => od.columns[i] for i in 1:length(od.labels)]
