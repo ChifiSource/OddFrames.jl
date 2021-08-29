@@ -1,4 +1,7 @@
 name = "OddFrames"
 uuid = "92848680-4a49-47bc-a2e8-b1e6b5e2fbf7"
 authors = ["emmett "]
-version = "0.0.3"
+version = "0.0.4"
+
+[deps]
+Lathe = "38d8eb38-e7b1-11e9-0012-376b6c802672"
