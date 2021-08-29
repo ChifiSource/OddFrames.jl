@@ -1,4 +1,7 @@
 # CHANGES
+### Labels - Bug fix - TODO - New Feature - Not Implemented
+#### 0.0.4 FIXES AND ADDITIONS
+- **Bug fix** Fixed problem with boolean indexing!
 #### 0.0.4 REWORK
 - Reworked the handling of indexes.
 - Added shape() method
