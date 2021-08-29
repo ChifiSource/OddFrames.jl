@@ -2,6 +2,11 @@
 ### Labels - Bug fix - TODO - New Feature - Not Implemented
 #### 0.0.4 FIXES AND ADDITIONS
 - **Bug fix** Fixed problem with boolean indexing!
+- **Bug fix** Fixed the issue with bad feature-type labeling.
+- Extended the abilities of the feature-type determiner.
+- **TODO** Add more information for dates and times.
+- **TODO** Add majority class for classes.
+- **TODO** Add image URI to feature-types.
 #### 0.0.4 REWORK
 - Reworked the handling of indexes.
 - Added shape() method
