@@ -1,5 +1,6 @@
 include("css.jl")
 using Lathe.stats: mean
+using Dates
 import Base: getindex
 #=========
 o=o= Heirarchy overview =o=o
@@ -15,7 +16,7 @@ OddFrame Type
 mutable struct OddFrame <: AbstractOddFrame
         labels::Array{Symbol}
         columns::Array{Any}
-        coldata::String
+        coldata::Array{String}
         head::Function
         drop::Function
         #==
@@ -28,15 +29,16 @@ mutable struct OddFrame <: AbstractOddFrame
                 coldata = generate_coldata(columns)
                 head(x::Int64) = _head(labels, columns, x)
                 head() = _head(labels, columns, 5)
-                new(lookup, head, drop)
+                new(labels, columns, coldata, head, drop)
         end
         function OddFrame(file_path::String)
                 extensions = Dict(".csv" => read_csv)
                 extension = split(file_path, '.')[2]
                 values, columns = extensions[extension](file_path)
-                coldata = generate_coldata(columns::Array)
+                coldata = generate_coldata(columns)
                 head(x::Int64) = _head(labels, columns, x)
                 head() = _head(labels, columns, 5)
+                new(labels, columns, coldata, head, drop)
         end
         #==
         Supporting
@@ -44,7 +46,44 @@ mutable struct OddFrame <: AbstractOddFrame
         ( Support constructors )
         ==#
         function generate_coldata(columns::Array)
-
+                coldatas = []
+                for column in columns
+                        feature_type = :Undetermined
+                        if set(column[1]) >= length(columns[1]) * .25
+                                feature_type = :Continuous
+                                try
+                                        Date(column[1])
+                                        feature_type = :Date
+                                catch
+                                        if typeof(feature) == String
+                                                feature_type = :Location
+                                        end
+                        else
+                                feature_type = :Categorical
+                        end
+                        if feature_type = :Continuous
+                                coldata = string("Feature Type: ",
+                                feature_type, "\n Mean: ", mean(column),
+                                "\n Minimum: ", minimum(column),
+                                 "\n Maximum: ", maximum(column)
+                                )
+                        if feature_type = :Categorical
+                                u=unique(column)
+                                d=Dict([(i,count(x->x==i, column)) for i in u])
+                                d = sort(collect(d), by=x->x[2])
+                                maxkey = d[length(d)]
+                                coldata = string("Feature Type: ",
+                                feature_type, "\n Categories: ",
+                                 length(set((column))),
+                                "\n Majority: ", maxkey
+                                )
+                        else
+                                coldata = string("Feature Type: ",
+                                feature_type)
+                        end
+                        append!(coldatas, coldata)
+                end
+                return(coldatas)
         end
         #==
         Child
@@ -52,25 +91,29 @@ mutable struct OddFrame <: AbstractOddFrame
             ==#
         function _head(labels::Array{Symbol},
                 columns::Array{Any}, count::Int64)
+                # Create t-header and t-body tags
                 thead = "<thead><tr>"
                 tbody = "<tbody>"
+                # populate row headers
                 [thead = string(thead, "<th>", string(name),
-                 "</th>") for name in keys(lookup)]
+                 "</th>") for name in labels]
+                 # finish t-head
                  thead = string(thead, "</tr></thead>")
-                 cols = values(lookup)
-                 features = [push!(val) for val in cols]
-                 for i in 1:count)
-                         obs = [row[i] for row in features]
+                 # populate each row iteratively.
+                 for i in 1:count
+                         obs = [row[i] for row in labels]
                          tbody = string(tbody, "<tr>")
-                         for observ in obs
-
-                         end
                          [tbody = string(tbody, "<td>", observ,
-        "</td>") for observ in obs]
+        "</td>") for (count, observ) in enumerate(obs)]
                         tbody = string(tbody, "</tr>")
                  end
+                 # Finish tags:
                  tbody = string(tbody, "</tbody>")
                  final = string("<table>", thead, tbody, "</table")
+                 # Display
+                 # TODO: Figure out how to determine whether one is in
+                 #    the REPL, prefereably before any of this function is
+                 # called.
                  display("text/html", final)
         end
 
