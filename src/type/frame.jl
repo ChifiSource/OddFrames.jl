@@ -73,13 +73,13 @@ mutable struct OddFrame <: AbstractOddFrame
                         else
                                 feature_type = :Categorical
                         end
-                        if feature_type = :Continuous
+                        if feature_type == :Continuous
                                 coldata = string("Feature Type: ",
                                 feature_type, "\n Mean: ", mean(column),
                                 "\n Minimum: ", minimum(column),
                                  "\n Maximum: ", maximum(column)
                                 )
-                        if feature_type = :Categorical
+                        if feature_type == :Categorical
                                 u=unique(column)
                                 d=Dict([(i,count(x->x==i, column)) for i in u])
                                 d = sort(collect(d), by=x->x[2])
