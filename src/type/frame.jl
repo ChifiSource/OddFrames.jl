@@ -1,83 +1,195 @@
 include("css.jl")
+using Lathe.stats: mean
+using Dates
 import Base: getindex
-#=========
-o=o= Heirarchy overview =o=o
-|AbstractOddFrame
-|_____ OddFrame
-|_____ ImageOddFrame
-=========#
-abstract type AbstractOddFrame end
 #=============
 OddFrame Type
 =============#
-mutable struct OddFrame{head} <: AbstractOddFrame
-    lookup::Dict
-    head::head
-    function OddFrame(lookup::Dict)
-        """Docstring test"""
-        head(count; style = "classic") = _head(lookup, count, style = style)
-        new{typeof(head)}(lookup, head)
-    end
-function _head(lookup::Dict, count::Int64 = 5; style::String = "classic")
-    thead = "<thead>
-<tr>"
-    tbody = "<tbody>"
-    [thead = string(thead, "<th>", string(name), "</th>") for name in keys(lookup)]
-    thead = string(thead, "</thead>")
-    cols = values(lookup)
-    features = [push!(val) for val in cols]
-    for i in 1:length(features[1])
-        obs = [row[i] for row in features]
-        tbody = string(tbody, "<tr>")
-        [tbody = string(tbody, "<td>", observ, "</td>") for observ in obs]
-        tbody = string(tbody, "</tr>")
-    end
-    tbody = string(tbody, "</tbody>")
-    compisition = string(_css,"<table class = \"", style, "\">",
-     thead, tbody,"</table>")
-     try
-         display("text/html", compisition)
-     catch
-         md = ""
-         throw("Terminal display has not yet been implemented.")
-    end
-end
+mutable struct OddFrame <: AbstractOddFrame
+        labels::Array{Symbol}
+        columns::Array{Any}
+        coldata::Array{String}
+        head::Function
+        drop::Function
+        #==
+        Constructors
+        ==#
+        function OddFrame(p::Pair ...)
+                # Labels/Columns
+                labels = [pair[1] for pair in p]
+                columns = [pair[2] for pair in p]
+                length_check(columns)
+                name_check(labels)
+                # coldata
+                coldata = generate_coldata(columns)
+                # Head
+                head(x::Int64) = _head(labels, columns, coldata, x)
+                head() = _head(labels, columns, coldata, 5)
+                # Drop
+                drop(x::Int64) = _drop(x, columns)
+                drop(x::Symbol) = _drop(x, labels, columns, coldata)
+                drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
+                # type
+                new(labels, columns, coldata, head, drop);
+        end
+        function OddFrame(file_path::String)
+                # Labels/Columns
+                extensions = Dict(".csv" => read_csv)
+                extension = split(file_path, '.')[2]
+                labels, columns = extensions[extension](file_path)
+                length_check(columns)
+                name_check(labels)
+                # Coldata
+                coldata = generate_coldata(columns)
+                # Head
+                head(x::Int64) = _head(labels, columns, coldata, x)
+                head() = _head(labels, columns, coldata, 5)
+                # Drop
+                drop(x) = _drop(x, columns)
+                drop(x::Symbol) = _drop(x, labels, columns, coldata)
+                drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
+                # type
+                new(labels, columns, coldata, head, drop);
+        end
+        #==
+        Supporting
+                Functions
+        ( Support constructors )
+        ==#
+        function generate_coldata(columns::Array)
+                coldatas = []
+                for column in columns
+                        feature_type = :Undetermined
+                        if length(Set(column)) >= length(column) * .5
+                                feature_type = :Continuous
+                                try
+                                        Date(column[1])
+                                        feature_type = :Date
+                                catch
+                                        if typeof(feature) == String
+                                                feature_type = :Location
+                                        end
+                                end
+                        else
+                                feature_type = :Categorical
+                        end
+                        if feature_type == :Continuous
+                                coldata = string("Feature Type: ",
+                                feature_type, "\n Mean: ", mean(column),
+                                "\n Minimum: ", minimum(column),
+                                 "\n Maximum: ", maximum(column)
+                                )
+                        elseif feature_type == :Categorical
+                                u=unique(column)
+                                d=Dict([(i,count(x->x==i, column)) for i in u])
+                                d = sort(collect(d), by=x->x[2])
+                                coldata = string("Feature Type: ",
+                                feature_type, "\n Categories: ",
+                                 length(Set((column))),
+                                "\n Majority: "
+                                )
+                        else
+                                coldata = string("Feature Type: ",
+                                feature_type)
+                        end
+                        push!(coldatas, coldata)
+                end
+                print(coldatas)
+                return(coldatas)
+        end
+
+        #==
+        THROWS
+        ==#
+        function length_check(ps)
+                ourlen = length(ps[1])
+                [if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
+        end
+
+        function name_check(labels)
+                if length(Set(labels)) != length(labels)
+                        println(labels)
+                        println(Set(labels))
+                        println(length(labels))
+                        println(length(Set(labels)))
+                        throw(ErrorException("Column names may not be duplicated!"))
+                end
+        end
+        #==
+        Child
+            methods
+            ==#
+        function _head(labels::Array{Symbol},
+                columns::Array, coldata::Array, count::Int64)
+                # Create t-header and t-body tags
+                thead = "<thead><tr>"
+                tbody = "<tbody>"
+                # populate row headers
+                [thead = string(thead, "<th ","title = \"",
+                coldata[n], "\">",  string(name),
+                 "</th>") for (n, name) in enumerate(labels)]
+                 # finish t-head
+                 thead = string(thead, "</tr></thead>")
+                 # populate each row iteratively.
+                 for i in 1:count
+                         obs = [row[i] for row in columns]
+                         tbody = string(tbody, "<tr>")
+                         [tbody = string(tbody, "<td ",
+                         "title = \"", coldata[count], "\">"
+                         , observ,
+        "</td>") for (count, observ) in enumerate(obs)]
+                        tbody = string(tbody, "</tr>")
+                 end
+                 # Finish tags:
+                 tbody = string(tbody, "</tbody>")
+                 final = string("<body><table>", thead, tbody,
+                  "</table></body>", _css)
+                 # Display
+                 # TODO: Figure out how to determine whether one is in
+                 #    the REPL, prefereably before any of this function is
+                 # called.
+                 display("text/html", final)
+        end
+
+        function _drop(column::Symbol, labels::Array{Symbol}, columns::Array,
+                coldata::Array)
+                pos = findall(x->x==column, labels)[1]
+                deleteat!(labels, pos)
+                deleteat!(coldata, pos)
+                deleteat!(columns, pos)
+        end
+
+        function _drop(row::Int64, columns::Array)
+                [deleteat!(col, row) for col in columns]
+        end
+        function _drop(row::Array, columns::Array)
+                [deleteat!(col, row) for col in columns]
+        end
 
 end
-#=====
-Methods
-Many of these functional options will soon be replaced for their
-object-oriented counter-parts -- but not all!
-=====#
-function drop(od::OddFrame, symb::Symbol)
-    new_cop = Dict()
-    for (key, val) in od.lookup
-        if key != symb
-            push!(new_cop, key => val)
-        end
-    end
-    return(OddFrame(new_cop))
-end
-function drop(od::OddFrame, row::Int64)
-    vals = d.lookup
-    [splice!(val[2], row) for val in vals]
-    return(OddFrame(vals))
-end
+
+
 
 #===
 Indexing
 ===#
-getindex(od::OddFrame, col::Symbol) = od.lookup[col]
-getindex(od::OddFrame, col::String) = od.lookup[Symbol(col)]
+function getindex(od::AbstractOddFrame, col::Symbol)
+        pos = findall(x->x==col, od.labels)[1]
+        return(od.columns[pos])
+end
+getindex(od::AbstractOddFrame, col::String) = od[Symbol(col)]
+getindex(od::AbstractOddFrame, axis::Int64) = od.columns[axis]
 function getindex(od::OddFrame, mask::BitArray)
-    [if mask[i] == 0 drop(od, i) end for i in 1:length(mask)]
+        pos = findall(x->x==0, mask)[1]
+        od.drop(pos)
 end
 
 #===
 Iterators
 ===#
-function eachrow(of::OddFrame)
-    cols = values(of.lookup)
-    [[row[i] for row in cols] for i in 1:length(cols[1])]
-end
-eachcol(od::OddFrame) = values(od.lookup)
+# TODO Add column/row iterators for for loop iterator calls.
+#===
+Methods
+===#
+# TODO Move methods to different file, methods.jl
+shape(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
