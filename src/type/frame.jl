@@ -35,7 +35,8 @@ mutable struct OddFrame <: AbstractOddFrame
                 extension = split(file_path, '.')[2]
                 values, columns = extensions[extension](file_path)
                 coldata = generate_coldata(columns::Array)
-                
+                head(x::Int64) = _head(labels, columns, x)
+                head() = _head(labels, columns, 5)
         end
         #==
         Supporting
@@ -72,12 +73,15 @@ mutable struct OddFrame <: AbstractOddFrame
                  final = string("<table>", thead, tbody, "</table")
                  display("text/html", final)
         end
+
         function _drop(lookup::Dict, column::Symbol)
                 delete!(lookup, column)
         end
+
         function _drop(lookup::Dict, row::Int64)
                 [splice!(val[2], row) for val in lookup]
         end
+
         #==
         THROWS
         ==#
@@ -102,8 +106,4 @@ end
 #===
 Iterators
 ===#
-function eachrow(of::OddFrame)
-    cols = values(of.lookup)
-    [[row[i] for row in cols] for i in 1:length(cols[1])]
-end
-eachcol(od::OddFrame) = values(od.lookup)
+# TODO Add column/row iterators for for loop iterator calls.
