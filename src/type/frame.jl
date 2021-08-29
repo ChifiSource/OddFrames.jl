@@ -1,7 +1,7 @@
 include("css.jl")
 using Lathe.stats: mean
 using Dates
-import Base: getindex
+import Base: getindex, show
 #=============
 OddFrame Type
 =============#
@@ -11,6 +11,7 @@ mutable struct OddFrame <: AbstractOddFrame
         coldata::Array{String}
         head::Function
         drop::Function
+        dropna::Function
         #==
         Constructors
         ==#
@@ -29,8 +30,9 @@ mutable struct OddFrame <: AbstractOddFrame
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
+                dropna() = dropna(columns)
                 # type
-                new(labels, columns, coldata, head, drop);
+                new(labels, columns, coldata, head, drop, dropna);
         end
         function OddFrame(file_path::String)
                 # Labels/Columns
@@ -48,8 +50,9 @@ mutable struct OddFrame <: AbstractOddFrame
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
+                dropna() = dropna(columns)
                 # type
-                new(labels, columns, coldata, head, drop);
+                new(labels, columns, coldata, head, drop, dropna);
         end
         #==
         Supporting
@@ -182,8 +185,17 @@ mutable struct OddFrame <: AbstractOddFrame
         function _drop(row::Int64, columns::Array)
                 [deleteat!(col, row) for col in columns]
         end
+
         function _drop(row::Array, columns::Array)
                 [deleteat!(col, row) for col in columns]
+        end
+
+        function _dropna(columns::Array)
+                for col in columns
+                        mask = [ismissing(x) for x in col]
+                        pos = findall(x->x==0, mask)
+                        _drop(pos, columns)
+                end
         end
 
 end
@@ -207,9 +219,7 @@ end
 #===
 Iterators
 ===#
-# TODO Add column/row iterators for for loop iterator calls.
-#===
-Methods
-===#
-# TODO Move methods to different file, methods.jl
-shape(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
+columns(od::OddFrame) = od.columns
+labels(od::OddFrame) = od.labels
+names(od::OddFrame) = od.labels
+pairs(od::OddFrame) = [od.labels[i] => od.columns[i] for i in 1:length(od.labels)]
