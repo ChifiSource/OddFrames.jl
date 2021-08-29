@@ -26,7 +26,7 @@ mutable struct OddFrame <: AbstractOddFrame
                 head(x::Int64) = _head(labels, columns, coldata, x)
                 head() = _head(labels, columns, coldata, 5)
                 # Drop
-                drop(x::Int64) = _drop(x, columns)
+                drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
                 # type
@@ -180,7 +180,7 @@ end
 getindex(od::AbstractOddFrame, col::String) = od[Symbol(col)]
 getindex(od::AbstractOddFrame, axis::Int64) = od.columns[axis]
 function getindex(od::OddFrame, mask::BitArray)
-        pos = findall(x->x==0, mask)[1]
+        pos = findall(x->x==0, mask)
         od.drop(pos)
 end
 
