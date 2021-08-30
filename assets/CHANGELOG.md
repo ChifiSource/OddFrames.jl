@@ -1,4 +1,16 @@
 # CHANGES
+### Labels - Bug fix - TODO - New Feature - Not Implemented
+#### 0.0.5 FIXES AND ADDITIONS
+- **Bug fix** Fixed problem with boolean indexing!
+- **Bug fix** Fixed the issue with bad feature-type labeling.
+- Extended the abilities of the feature-type determiner.
+- **TODO** Add more information for dates and times.
+- **TODO** Add majority class for classes.
+- **TODO** Add image URI to feature-types.
+- **TODO** Add ! for mutating methods
+- **TODO** Add immutableoddframe with tuples and an immutable type.
+- **New Feature** added dropna()
+- Added iterators for calling columns or labels, etc.
 #### 0.0.4 REWORK
 - Reworked the handling of indexes.
 - Added shape() method
