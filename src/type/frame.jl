@@ -1,14 +1,15 @@
 include("css.jl")
+include("formats.jl")
 using Lathe.stats: mean
 using Dates
-import Base: getindex, show
+import Base: getindex, show, Meta
 #=============
 OddFrame Type
 =============#
 mutable struct OddFrame <: AbstractOddFrame
         labels::Array{Symbol}
         columns::Array{Any}
-        coldata::Array{String}
+        coldata::Array{Pair}
         head::Function
         drop::Function
         dropna::Function
@@ -21,8 +22,9 @@ mutable struct OddFrame <: AbstractOddFrame
                 columns = [pair[2] for pair in p]
                 length_check(columns)
                 name_check(labels)
+                types = [typeof(x[1]) for x in columns]
                 # coldata
-                coldata = generate_coldata(columns)
+                coldata = generate_coldata(columns, types)
                 # Head
                 head(x::Int64) = _head(labels, columns, coldata, x)
                 head() = _head(labels, columns, coldata, 5)
@@ -30,19 +32,20 @@ mutable struct OddFrame <: AbstractOddFrame
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
-                dropna() = dropna(columns)
+                dropna() = _dropna(columns)
                 # type
                 new(labels, columns, coldata, head, drop, dropna);
         end
         function OddFrame(file_path::String)
                 # Labels/Columns
-                extensions = Dict(".csv" => read_csv)
+                extensions = Dict("csv" => read_csv)
                 extension = split(file_path, '.')[2]
                 labels, columns = extensions[extension](file_path)
                 length_check(columns)
                 name_check(labels)
+                types, columns = read_types(columns)
                 # Coldata
-                coldata = generate_coldata(columns)
+                coldata = generate_coldata(columns, types)
                 # Head
                 head(x::Int64) = _head(labels, columns, coldata, x)
                 head() = _head(labels, columns, coldata, 5)
@@ -50,7 +53,7 @@ mutable struct OddFrame <: AbstractOddFrame
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
-                dropna() = dropna(columns)
+                dropna() = _dropna(columns)
                 # type
                 new(labels, columns, coldata, head, drop, dropna);
         end
@@ -59,83 +62,41 @@ mutable struct OddFrame <: AbstractOddFrame
                 Functions
         ( Support constructors )
         ==#
-        function generate_coldata(columns::Array)
-                coldatas = []
-                for column in columns
-                        feature_type = :Undetermined
-                        if length(Set(column)) >= length(column) * .5
-                                feature_type = :Continuous
-                                if typeof(column[1]) == Date
-                                        feature_type = :Date
-                                elseif typeof(column[1]) == String
-                                        if cchar('-', column[1] >= 2)
-                                                feature_type = :Date
-                                        elseif cchar(':', column[1] >= 1)
-                                                feature_type = :Time
-                                        else
-                                                feature_type = :Categorical
-                                        end
-                                end
+        function generate_coldata(columns::Array, types::Array)
+                pairs = []
+                for (i, T) in enumerate(types)
+                        if T == String
+                                push!(pairs, T => string("Data-type: ",
+                                T, "\nFeature Type: Categorical\n",
+                                "Categories: ", length(Set(columns[i]))))
+                        elseif T == Bool
+                                push!(pairs, T => string("Data-type: ",
+                                T, "\nFeature Type: Categorical\n",
+                                "Categories: ", length(Set(columns[i]))))
+                        elseif length(columns[i]) / length(Set(columns[i])) <= 1.8
+                                push!(pairs, T => string("Data-type: ",
+                                T, "\nFeature Type: Continuous\n", "Mean: ",
+                                mean(columns[i])))
                         else
-                                feature_type = :Categorical
+                                push!(pairs, T => string("Data-type: ",
+                                T, "\nFeature Type: Categorical\n",
+                                "Categories: ", length(Set(columns[i]))))
                         end
-                        if feature_type == :Continuous
-                                coldata = string("data-type: ",
-                                typeof(column[1]), "\n Feature Type: ",
-                                feature_type, "\n Mean: ", mean(column),
-                                "\n Minimum: ", minimum(column),
-                                 "\n Maximum: ", maximum(column)
-                                )
-                        elseif feature_type == :Categorical
-                                u=unique(column)
-                                d=Dict([(i,count(x->x==i, column)) for i in u])
-                                d = sort(collect(d), by=x->x[2])
-                                coldata = string("data-type: ",
-                                typeof(column[1]), "\n Feature Type: ",
-                                feature_type, "\n Categories: ",
-                                 length(Set((column))),
-                                "\n Majority: "
-                                )
-                        else
-                                coldata = string("data-type: ",
-                                typeof(column[1]),"\n Feature Type: ",
-                                feature_type)
-                        end
-                        push!(coldatas, coldata)
                 end
-                print(coldatas)
-                return(coldatas)
+                pairs
         end
-        function cchar(t::Union{AbstractString,Regex,AbstractChar},
-                 s::AbstractString; overlap::Bool=false)
-           n = 0
-           i, e = firstindex(s), lastindex(s)
-           while true
-               r = findnext(t, s, i)
-               isnothing(r) && break
-               n += 1
-               j = overlap || isempty(r) ? first(r) : last(r)
-               j > e && break
-               @inbounds i = nextind(s, j)
-           end
-           return n
-       end
 
         #==
         THROWS
         ==#
         function length_check(ps)
                 ourlen = length(ps[1])
-                [if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
+[if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
         end
 
         function name_check(labels)
                 if length(Set(labels)) != length(labels)
-                        println(labels)
-                        println(Set(labels))
-                        println(length(labels))
-                        println(length(Set(labels)))
-                        throw(ErrorException("Column names may not be duplicated!"))
+                throw(ErrorException("Column names may not be duplicated!"))
                 end
         end
         #==
@@ -149,7 +110,7 @@ mutable struct OddFrame <: AbstractOddFrame
                 tbody = "<tbody>"
                 # populate row headers
                 [thead = string(thead, "<th ","title = \"",
-                coldata[n], "\">",  string(name),
+                coldata[n][2], "\">",  string(name),
                  "</th>") for (n, name) in enumerate(labels)]
                  # finish t-head
                  thead = string(thead, "</tr></thead>")
@@ -158,7 +119,7 @@ mutable struct OddFrame <: AbstractOddFrame
                          obs = [row[i] for row in columns]
                          tbody = string(tbody, "<tr>")
                          [tbody = string(tbody, "<td ",
-                         "title = \"", coldata[count], "\">"
+                         "title = \"", coldata[count][2], "\">"
                          , observ,
         "</td>") for (count, observ) in enumerate(obs)]
                         tbody = string(tbody, "</tr>")
