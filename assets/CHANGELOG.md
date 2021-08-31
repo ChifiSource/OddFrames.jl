@@ -1,13 +1,16 @@
 # CHANGES
 ### Labels - Bug fix - TODO - New Feature - Not Implemented - TODO C (TODO Carryover)
 #### 0.0.6 More Functions!
-- **TODO C** Add more information for dates and times
+- **TODO C** Add more information for dates and times, and other feature-types.
+- **TODO** Add string parser to parse data-types that are strings.
 - **TODO C** Add majority class for classes.
 - **TODO C** Add image URI to feature-types.
 - **TODO C** Add ! for mutating methods
-- **TODO C** Add immutableoddframe with tuples and an immutable type.
+- Added immutableoddframe with tuples and an immutable type.
 - Added length(), size(), and width() bindings
 - Added _dtype function
+- Added Dict dispatch to OddFrame
+- Moved indexing and iter into indexiter.jl
 #### 0.0.5 FIXES AND ADDITIONS
 - **Bug fix** Fixed problem with boolean indexing!
 - **Bug fix** Fixed the issue with bad feature-type labeling.
