@@ -1,8 +1,8 @@
 include("css.jl")
 include("formats.jl")
+include("index_iter.jl")
 using Lathe.stats: mean
 using Dates
-import Base: getindex, show, Meta
 #=============
 OddFrame Type
 =============#
@@ -10,9 +10,11 @@ mutable struct OddFrame <: AbstractOddFrame
         labels::Array{Symbol}
         columns::Array{Any}
         coldata::Array{Pair}
+        """Example Doc-string"""
         head::Function
         drop::Function
         dropna::Function
+        dtype::Function
         #==
         Constructors
         ==#
@@ -33,11 +35,12 @@ mutable struct OddFrame <: AbstractOddFrame
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
                 dropna() = _dropna(columns)
-                dtype(x::Symbol) = coldata[findall(x->x == x, labels)[1]]
+                dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
+                                                labels)[1]][1])
                 dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                  labels)[1]], y)
                 # type
-                new(labels, columns, coldata, head, drop, dropna);
+                new(labels, columns, coldata, head, drop, dropna, dtype);
         end
         function OddFrame(file_path::String)
                 # Labels/Columns
@@ -57,11 +60,15 @@ mutable struct OddFrame <: AbstractOddFrame
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
                 dropna() = _dropna(columns)
-                dtype(x::Symbol) = coldata[findall(x->x == x, labels)[1]]
+                dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
+                                                labels)[1]][1])
                 dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                  labels)[1]], y)
                 # type
-                new(labels, columns, coldata, head, drop, dropna);
+                new(labels, columns, coldata, head, drop, dropna, dtype);
+        end
+        function OddFrame(d::Dict)
+
         end
         #==
         Supporting
@@ -172,27 +179,74 @@ function _dtype(column, y)
         catch
         throw(TypeError("column type casting",
                  y, column[1]))
+         end
 end
+#=============
+IMMUTABLE OddFrame Type
+=============#
+struct ImmutableOddFrame <: AbstractOddFrame
+        labels::Array{Symbol}
+        columns::Array{Any}
+        coldata::Array{Pair}
+        head::Function
+        dtype::Function
+    #==
+    Constructors
+    ==#
+    function ImmutableOddFrame(p::Pair ...)
+        od = OddFrame(p)
+        labels, columns = Tuple(od.labels), Tuple(od.columns)
+        coldata = Tuple(od.coldata)
+        dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
+             labels)[1]][1])
+        head(x::Int64) = _head(labels, columns, coldata, x)
+                head() = _head(labels, columns, coldata, 5)
+        new(labels, columns, coldata, head, dtype)
+    end
+    function ImmutableOddFrame(file_path::String)
+        od = OddFrame(file_path)
+        labels, columns = Tuple(od.labels), Tuple(od.columns)
+        coldata = Tuple(od.coldata)
+        dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
+             labels)[1]][1])
+        head(x::Int64) = _head(labels, columns, coldata, x)
+                head() = _head(labels, columns, coldata, 5)
+        new(labels, columns, coldata, head, dtype)
+    end
 
+    #==
+    Methods
+    ==#
+            function _head(labels::Array{Symbol},
+                columns::Array, coldata::Array, count::Int64)
+                # Create t-header and t-body tags
+                thead = "<thead><tr>"
+                tbody = "<tbody>"
+                # populate row headers
+                [thead = string(thead, "<th ","title = \"",
+                coldata[n][2], "\">",  string(name),
+                 "</th>") for (n, name) in enumerate(labels)]
+                 # finish t-head
+                 thead = string(thead, "</tr></thead>")
+                 # populate each row iteratively.
+                 for i in 1:count
+                         obs = [row[i] for row in columns]
+                         tbody = string(tbody, "<tr>")
+                         [tbody = string(tbody, "<td ",
+                         "title = \"", coldata[count][2], "\">"
+                         , observ,
+        "</td>") for (count, observ) in enumerate(obs)]
+                        tbody = string(tbody, "</tr>")
+                 end
+                 # Finish tags:
+                 tbody = string(tbody, "</tbody>")
+                 final = string("<body><table>", thead, tbody,
+                  "</table></body>", _css)
+                 # Display
+                 # TODO: Figure out how to determine whether one is in
+                 #    the REPL, prefereably before any of this function is
+                 # called.
+                 display("text/html", final)
+        end
 
-#===
-Indexing
-===#
-function getindex(od::AbstractOddFrame, col::Symbol)
-        pos = findall(x->x==col, od.labels)[1]
-        return(od.columns[pos])
 end
-getindex(od::AbstractOddFrame, col::String) = od[Symbol(col)]
-getindex(od::AbstractOddFrame, axis::Int64) = od.columns[axis]
-function getindex(od::OddFrame, mask::BitArray)
-        pos = findall(x->x==0, mask)
-        od.drop(pos)
-end
-
-#===
-Iterators
-===#
-columns(od::OddFrame) = od.columns
-labels(od::OddFrame) = od.labels
-names(od::OddFrame) = od.labels
-pairs(od::OddFrame) = [od.labels[i] => od.columns[i] for i in 1:length(od.labels)]
