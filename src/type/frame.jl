@@ -33,6 +33,9 @@ mutable struct OddFrame <: AbstractOddFrame
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
                 dropna() = _dropna(columns)
+                dtype(x::Symbol) = coldata[findall(x->x == x, labels)[1]]
+                dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
+                 labels)[1]], y)
                 # type
                 new(labels, columns, coldata, head, drop, dropna);
         end
@@ -54,6 +57,9 @@ mutable struct OddFrame <: AbstractOddFrame
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
                 dropna() = _dropna(columns)
+                dtype(x::Symbol) = coldata[findall(x->x == x, labels)[1]]
+                dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
+                 labels)[1]], y)
                 # type
                 new(labels, columns, coldata, head, drop, dropna);
         end
@@ -154,13 +160,19 @@ mutable struct OddFrame <: AbstractOddFrame
         function _dropna(columns::Array)
                 for col in columns
                         mask = [ismissing(x) for x in col]
-                        pos = findall(x->x==0, mask)
+                        pos = findall(x->x==1, mask)
                         _drop(pos, columns)
                 end
         end
 
 end
-
+function _dtype(column, y)
+        try
+                [y(i) for i in column]
+        catch
+        throw(TypeError("column type casting",
+                 y, column[1]))
+end
 
 
 #===
