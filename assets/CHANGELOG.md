@@ -11,6 +11,7 @@
 - Added _dtype function
 - Added Dict dispatch to OddFrame
 - Moved indexing and iter into indexiter.jl
+- **TODO** Separate data-types and labeled attributes
 #### 0.0.5 FIXES AND ADDITIONS
 - **Bug fix** Fixed problem with boolean indexing!
 - **Bug fix** Fixed the issue with bad feature-type labeling.
