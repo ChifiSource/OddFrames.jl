@@ -3,14 +3,16 @@ include("formats.jl")
 include("index_iter.jl")
 using Lathe.stats: mean
 using Dates
+
+#Binding(od::AbstractOddFrame, s::Symbol) = eval(df.)
 #=============
 OddFrame Type
 =============#
+
 mutable struct OddFrame <: AbstractOddFrame
         labels::Array{Symbol}
         columns::Array{Any}
         coldata::Array{Pair}
-        """Example Doc-string"""
         head::Function
         drop::Function
         dropna::Function
@@ -53,6 +55,30 @@ mutable struct OddFrame <: AbstractOddFrame
                 # Coldata
                 coldata = generate_coldata(columns, types)
                 # Head
+                """dox"""
+                head(x::Int64) = _head(labels, columns, coldata, x)
+                head() = _head(labels, columns, coldata, 5)
+                # Drop
+                drop(x) = _drop(x, columns)
+                drop(x::Symbol) = _drop(x, labels, columns, coldata)
+                drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
+                dropna() = _dropna(columns)
+                dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
+                                                labels)[1]][1])
+                dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
+                 labels)[1]], y)
+                # type
+                new(labels, columns, coldata, head, drop, dropna, dtype);
+        end
+        function OddFrame(p::AbstractVector)
+                labels = [pair[1] for pair in p]
+                columns = [pair[2] for pair in p]
+                length_check(columns)
+                name_check(labels)
+                types = [typeof(x[1]) for x in columns]
+                # coldata
+                coldata = generate_coldata(columns, types)
+                # Head
                 head(x::Int64) = _head(labels, columns, coldata, x)
                 head() = _head(labels, columns, coldata, 5)
                 # Drop
@@ -68,7 +94,7 @@ mutable struct OddFrame <: AbstractOddFrame
                 new(labels, columns, coldata, head, drop, dropna, dtype);
         end
         function OddFrame(d::Dict)
-
+                return(OddFrame([p => v for (p, v) in d]))
         end
         #==
         Supporting
@@ -104,7 +130,7 @@ mutable struct OddFrame <: AbstractOddFrame
         ==#
         function length_check(ps)
                 ourlen = length(ps[1])
-[if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
+                [if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
         end
 
         function name_check(labels)
@@ -112,74 +138,7 @@ mutable struct OddFrame <: AbstractOddFrame
                 throw(ErrorException("Column names may not be duplicated!"))
                 end
         end
-        #==
-        Child
-            methods
-            ==#
-        function _head(labels::Array{Symbol},
-                columns::Array, coldata::Array, count::Int64)
-                # Create t-header and t-body tags
-                thead = "<thead><tr>"
-                tbody = "<tbody>"
-                # populate row headers
-                [thead = string(thead, "<th ","title = \"",
-                coldata[n][2], "\">",  string(name),
-                 "</th>") for (n, name) in enumerate(labels)]
-                 # finish t-head
-                 thead = string(thead, "</tr></thead>")
-                 # populate each row iteratively.
-                 for i in 1:count
-                         obs = [row[i] for row in columns]
-                         tbody = string(tbody, "<tr>")
-                         [tbody = string(tbody, "<td ",
-                         "title = \"", coldata[count][2], "\">"
-                         , observ,
-        "</td>") for (count, observ) in enumerate(obs)]
-                        tbody = string(tbody, "</tr>")
-                 end
-                 # Finish tags:
-                 tbody = string(tbody, "</tbody>")
-                 final = string("<body><table>", thead, tbody,
-                  "</table></body>", _css)
-                 # Display
-                 # TODO: Figure out how to determine whether one is in
-                 #    the REPL, prefereably before any of this function is
-                 # called.
-                 display("text/html", final)
-        end
 
-        function _drop(column::Symbol, labels::Array{Symbol}, columns::Array,
-                coldata::Array)
-                pos = findall(x->x==column, labels)[1]
-                deleteat!(labels, pos)
-                deleteat!(coldata, pos)
-                deleteat!(columns, pos)
-        end
-
-        function _drop(row::Int64, columns::Array)
-                [deleteat!(col, row) for col in columns]
-        end
-
-        function _drop(row::Array, columns::Array)
-                [deleteat!(col, row) for col in columns]
-        end
-
-        function _dropna(columns::Array)
-                for col in columns
-                        mask = [ismissing(x) for x in col]
-                        pos = findall(x->x==1, mask)
-                        _drop(pos, columns)
-                end
-        end
-
-end
-function _dtype(column, y)
-        try
-                [y(i) for i in column]
-        catch
-        throw(TypeError("column type casting",
-                 y, column[1]))
-         end
 end
 #=============
 IMMUTABLE OddFrame Type
@@ -213,40 +172,5 @@ struct ImmutableOddFrame <: AbstractOddFrame
                 head() = _head(labels, columns, coldata, 5)
         new(labels, columns, coldata, head, dtype)
     end
-
-    #==
-    Methods
-    ==#
-            function _head(labels::Array{Symbol},
-                columns::Array, coldata::Array, count::Int64)
-                # Create t-header and t-body tags
-                thead = "<thead><tr>"
-                tbody = "<tbody>"
-                # populate row headers
-                [thead = string(thead, "<th ","title = \"",
-                coldata[n][2], "\">",  string(name),
-                 "</th>") for (n, name) in enumerate(labels)]
-                 # finish t-head
-                 thead = string(thead, "</tr></thead>")
-                 # populate each row iteratively.
-                 for i in 1:count
-                         obs = [row[i] for row in columns]
-                         tbody = string(tbody, "<tr>")
-                         [tbody = string(tbody, "<td ",
-                         "title = \"", coldata[count][2], "\">"
-                         , observ,
-        "</td>") for (count, observ) in enumerate(obs)]
-                        tbody = string(tbody, "</tr>")
-                 end
-                 # Finish tags:
-                 tbody = string(tbody, "</tbody>")
-                 final = string("<body><table>", thead, tbody,
-                  "</table></body>", _css)
-                 # Display
-                 # TODO: Figure out how to determine whether one is in
-                 #    the REPL, prefereably before any of this function is
-                 # called.
-                 display("text/html", final)
-        end
 
 end
