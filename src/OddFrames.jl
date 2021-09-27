@@ -7,9 +7,12 @@ o=o= Heirarchy overview =o=o
 |_____ ImageOddFrame
 =========#
 abstract type AbstractOddFrame end
+abstract type AbstractMutableOddFrame <: AbstractOddFrame end
 include("type/frame.jl")
-export OddFrame, getindex, setindex, shape
+export OddFrame, ImmutableOddFrame
+include("type/index_iter.jl")
+export getindex, setindex, shape
 export read_csv
 include("methods.jl")
-export shape, show
+export shape, show, length, merge!
 end
