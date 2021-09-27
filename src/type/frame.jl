@@ -13,7 +13,7 @@ OddFrame Type
 mutable struct OddFrame <: AbstractMutableOddFrame
         labels::Array{Symbol}
         columns::Array{Any}
-        coldata::Array{Pair}
+        types::Array
         head::Function
         drop::Function
         dropna::Function
@@ -22,17 +22,17 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         Constructors
         ==#
         function OddFrame(p::Pair ...)
+                p = [pair for pair in p]
                 # Labels/Columns
-                labels = [pair[1] for pair in p]
-                columns = [pair[2] for pair in p]
+        #        labels, columns = Array(map(x->x[1]), p), Array(map(x->x[2], p))
+                labels = [x[1] for x in p]
+                columns = [x[2] for x in p]
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
-                # coldata
-                coldata = generate_coldata(columns, types)
                 # Head
-                head(x::Int64) = _head(labels, columns, coldata, x)
-                head() = _head(labels, columns, coldata, 5)
+                head(x::Int64) = _head(labels, columns, x, types)
+                head() = _head(labels, columns, 5, types)
                 # Drop
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
@@ -43,7 +43,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                  labels)[1]], y)
                 # type
-                new(labels, columns, coldata, head, drop, dropna, dtype);
+                new(labels, columns, types, head, drop, dropna, dtype);
         end
         function OddFrame(file_path::String)
                 # Labels/Columns
@@ -57,8 +57,8 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 coldata = generate_coldata(columns, types)
                 # Head
                 """dox"""
-                head(x::Int64) = _head(labels, columns, coldata, x)
-                head() = _head(labels, columns, coldata, 5)
+                head(x::Int64) = _head(labels, columns, coldata, x, types)
+                head() = _head(labels, columns, coldata, 5, types)
                 # Drop
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
@@ -72,13 +72,11 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 new(labels, columns, coldata, head, drop, dropna, dtype);
         end
         function OddFrame(p::AbstractVector)
-                labels = [pair[1] for pair in p]
-                columns = [pair[2] for pair in p]
+                # Labels/Columns
+                labels, columns = map(x->x[1], p), map(x->x[2], p)
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
-                # coldata
-                coldata = generate_coldata(columns, types)
                 # Head
                 head(x::Int64) = _head(labels, columns, coldata, x)
                 head() = _head(labels, columns, coldata, 5)
@@ -102,36 +100,13 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 Functions
         ( Support constructors )
         ==#
-        function generate_coldata(columns::Array, types::Array)
-                pairs = []
-                for (i, T) in enumerate(types)
-                        if T == String
-                                push!(pairs, T => string("Data-type: ",
-                                T, "\nFeature Type: Categorical\n",
-                                "Categories: ", length(Set(columns[i]))))
-                        elseif T == Bool
-                                push!(pairs, T => string("Data-type: ",
-                                T, "\nFeature Type: Categorical\n",
-                                "Categories: ", length(Set(columns[i]))))
-                        elseif length(columns[i]) / length(Set(columns[i])) <= 1.8
-                                push!(pairs, T => string("Data-type: ",
-                                T, "\nFeature Type: Continuous\n", "Mean: ",
-                                mean(columns[i])))
-                        else
-                                push!(pairs, T => string("Data-type: ",
-                                T, "\nFeature Type: Categorical\n",
-                                "Categories: ", length(Set(columns[i]))))
-                        end
-                end
-                pairs
-        end
 
         #==
         THROWS
         ==#
         function length_check(ps)
                 ourlen = length(ps[1])
-                [if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
+[if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
         end
 
         function name_check(labels)
