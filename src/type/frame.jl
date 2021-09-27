@@ -1,6 +1,7 @@
 include("css.jl")
 include("formats.jl")
 include("index_iter.jl")
+include("member_func.jl")
 using Lathe.stats: mean
 using Dates
 
@@ -9,7 +10,7 @@ using Dates
 OddFrame Type
 =============#
 
-mutable struct OddFrame <: AbstractOddFrame
+mutable struct OddFrame <: AbstractMutableOddFrame
         labels::Array{Symbol}
         columns::Array{Any}
         coldata::Array{Pair}
