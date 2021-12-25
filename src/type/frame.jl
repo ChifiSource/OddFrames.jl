@@ -1,6 +1,5 @@
 include("css.jl")
 include("formats.jl")
-include("index_iter.jl")
 include("member_func.jl")
 using Lathe.stats: mean
 using Dates
@@ -31,8 +30,8 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
                 # Head
-                head(x::Int64) = _head(labels, columns, x, types)
-                head() = _head(labels, columns, 5, types)
+                head(x::Int64) = _head(labels, columns, types, x, )
+                head() = _head(labels, columns, types, 5)
                 # Drop
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
@@ -58,7 +57,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 # Head
                 """dox"""
                 head(x::Int64) = _head(labels, columns, coldata, x, types)
-                head() = _head(labels, columns, coldata, 5, types)
+                head() = _head(labels, columns, types, 5)
                 # Drop
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
@@ -78,8 +77,8 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
                 # Head
-                head(x::Int64) = _head(labels, columns, coldata, x)
-                head() = _head(labels, columns, coldata, 5)
+                head(x::Int64) = _head(labels, columns, types, x)
+                head() = _head(labels, columns, types, 5)
                 # Drop
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
@@ -145,7 +144,7 @@ struct ImmutableOddFrame <: AbstractOddFrame
         dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
              labels)[1]][1])
         head(x::Int64) = _head(labels, columns, coldata, x)
-                head() = _head(labels, columns, coldata, 5)
+                head() = _head(labels, columns, types, 5)
         new(labels, columns, coldata, head, dtype)
     end
 

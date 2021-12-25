@@ -3,9 +3,11 @@ include("supporting.jl")
 Child
     methods
     ==#
-function _head(labels::Array{Symbol},
-        columns::Array, count::Int64, types::Array,
-        coldata = generate_coldata(columns, types))
+function _head(labels::AbstractVector,
+        columns::AbstractVector, types::AbstractVector, count::Int64)
+
+        println(columns, types)
+        coldata = generate_coldata(columns, types)
         # Create t-header and t-body tags
         thead = "<thead><tr>"
         tbody = "<tbody>"
