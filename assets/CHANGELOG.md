@@ -4,6 +4,7 @@
 - **TODO C** Add more information for dates and times, and other feature-types.
 - **TODO** Add string parser to parse data-types that are strings. **DONE**
 - **TODO C** Add majority class for classes.
+-  ^^^^^^^^^^^^ Might cost more performance than its worth, although maxkey is quite rapid.
 - **TODO C** Add image URI to feature-types.
 - **TODO C** Add ! for mutating methods **DONE**
 - Added immutableoddframe with tuples and an immutable type.
@@ -15,6 +16,10 @@
 - Added merge!() function **TODO** complete.
 - Changed member functions to modulally global, for dox.
 - Added supporting functions file, and member_func.jl
+- Moved methods.jl, index_iter.jl to src/interface/
+- Still working on merge function (actually annoying)
+- **Bug fix** Fixed the issue where Oddframes.head() was getting called improperly without a count provided.
+- **TODO** Add _head(::UnitRange), so you can view less columns at a time.
 #### 0.0.5 FIXES AND ADDITIONS
 - **Bug fix** Fixed problem with boolean indexing!
 - **Bug fix** Fixed the issue with bad feature-type labeling.
