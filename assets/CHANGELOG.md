@@ -9,7 +9,7 @@
 - **TODO C** Add ! for mutating methods **DONE**
 - Added immutableoddframe with tuples and an immutable type.
 - Added length(), size(), and width() bindings
-- Added _dtype function
+- Added _dtype function **DONE** member_funcs line 65
 - Added Dict dispatch to OddFrame
 - Moved indexing and iter into indexiter.jl
 - **TODO** Separate data-types and labeled attributes **DONE**
