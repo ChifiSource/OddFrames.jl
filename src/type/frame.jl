@@ -21,10 +21,8 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         Constructors
         ==#
         function OddFrame(p::Pair ...)
-                p = [pair for pair in p]
-                # Labels/Columns
-        #        labels, columns = Array(map(x->x[1]), p), Array(map(x->x[2], p))
-                labels = [x[1] for x in p]
+                # Would be nice to combine these loops:
+                labels  = [x[1] for x in p]
                 columns = [x[2] for x in p]
                 length_check(columns)
                 name_check(labels)
