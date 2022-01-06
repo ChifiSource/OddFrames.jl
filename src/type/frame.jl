@@ -17,28 +17,45 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         drop::Function
         dropna::Function
         dtype::Function
+        merge!::Function
         #==
         Constructors
         ==#
         function OddFrame(p::Pair ...)
-                # Would be nice to combine these loops:
+                # TODO Would be nice to combine these loops:
                 labels  = [x[1] for x in p]
                 columns = [x[2] for x in p]
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
                 # Head
+                #== TODO, maybe the best approach to solving
+                the TODO outlined in member_func : 35 is to check
+                REPL or otherwise here?==#
                 head(x::Int64) = _head(labels, columns, types, x, )
                 head() = _head(labels, columns, types, 5)
                 # Drop
                 drop(x) = _drop(x, columns)
                 drop(x::Symbol) = _drop(x, labels, columns, coldata)
                 drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
+                # Dropna
                 dropna() = _dropna(columns)
+                # Dtype
                 dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
                                                 labels)[1]][1])
                 dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                  labels)[1]], y)
+                # Merge
+                merge_def = labels[length(labels)]
+                merge!(od::OddFrame; at::Symbol = merge_def) = _merge!(labels,
+                columns, od, at)
+                merge!(x::Array; at::Symbol = merge_def) = _merge!(labels,
+                columns, od, at)
+                merge_defi = length(labels)
+                merge!(od::OddFrame; at::Int64 = merge_defi) = _merge!(labels,
+                columns, od, at)
+                merge!(x::Array, at::Int64 = merge_defi) = _merge!(lables,
+                columns, od, at)
                 # type
                 new(labels, columns, types, head, drop, dropna, dtype);
         end
@@ -53,7 +70,6 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 # Coldata
                 coldata = generate_coldata(columns, types)
                 # Head
-                """dox"""
                 head(x::Int64) = _head(labels, columns, coldata, x, types)
                 head() = _head(labels, columns, types, 5)
                 # Drop
