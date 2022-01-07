@@ -1,3 +1,4 @@
+mean(x) = sum(x) / length(x)
 function generate_coldata(columns::Array, types::Array)
         pairs = []
         for (i, T) in enumerate(types)
