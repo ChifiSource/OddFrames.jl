@@ -1,7 +1,6 @@
 include("css.jl")
 include("formats.jl")
 include("member_func.jl")
-using Lathe.stats: mean
 using Dates
 
 #Binding(od::AbstractOddFrame, s::Symbol) = eval(df.)
@@ -46,15 +45,14 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                  labels)[1]], y)
                 # Merge
-                merge_def = labels[length(labels)]
-                merge!(od::OddFrame; at::Symbol = merge_def) = _merge!(labels,
+                merge!(od::OddFrame; at::Symbol = :end) = _merge!(labels,
                 columns, od, at)
-                merge!(x::Array; at::Symbol = merge_def) = _merge!(labels,
+                merge!(x::Array; at::Symbol = :end) = _merge!(labels,
                 columns, od, at)
                 merge_defi = length(labels)
-                merge!(od::OddFrame; at::Int64 = merge_defi) = _merge!(labels,
+                merge!(od::OddFrame; at::Int64 = 0) = _merge!(labels,
                 columns, od, at)
-                merge!(x::Array, at::Int64 = merge_defi) = _merge!(lables,
+                merge!(x::Array, at::Int64 = 0) = _merge!(lables,
                 columns, od, at)
                 # type
                 new(labels, columns, types, head, drop, dropna, dtype);
@@ -86,7 +84,8 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         end
         function OddFrame(p::AbstractVector)
                 # Labels/Columns
-                labels, columns = map(x->x[1], p), map(x->x[2], p)
+                labels  = [x[1] for x in p]
+                columns = [x[2] for x in p]
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
@@ -103,7 +102,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                  labels)[1]], y)
                 # type
-                new(labels, columns, coldata, head, drop, dropna, dtype);
+                new(labels, columns, types, head, drop, dropna, dtype);
         end
         function OddFrame(d::Dict)
                 return(OddFrame([p => v for (p, v) in d]))
