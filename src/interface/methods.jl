@@ -1,4 +1,4 @@
-import Base: show, size, length, +, -, -=
+import Base: show, size, length, +, -
 using Base.Docs: Binding
 shape(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
 size(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
