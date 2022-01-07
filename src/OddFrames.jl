@@ -10,9 +10,11 @@ abstract type AbstractOddFrame end
 abstract type AbstractMutableOddFrame <: AbstractOddFrame end
 include("type/frame.jl")
 export OddFrame, ImmutableOddFrame
-include("type/index_iter.jl")
-export getindex, setindex, shape
-export read_csv
-include("methods.jl")
-export shape, show, length, merge!
+include("interface/index_iter.jl")
+export getindex, setindex, columns, labels, names, pairs
+# export length_check
+include("interface/methods.jl")
+export shape, show, length, merge, +
+include("interface/basetools.jl")
+export push!
 end

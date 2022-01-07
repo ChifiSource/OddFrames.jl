@@ -1,4 +1,4 @@
-import Base: getindex, Meta
+import Base: getindex, setindex!
 #===
 Indexing
 ===#
@@ -13,10 +13,11 @@ function getindex(od::AbstractOddFrame, mask::BitArray)
         od.drop(pos)
 end
 getindex(z::UnitRange) = [od.labels[i] for i in z]
+# setindex!(od, i)
 #===
 Iterators
 ===#
 columns(od::AbstractOddFrame) = od.columns
 labels(od::AbstractOddFrame) = od.labels
-names(od::AbstractOddFrame) = od.labels
+names(od::AbstractOddFrame) = [label for label in od.labels]
 pairs(od::AbstractOddFrame) = [od.labels[i] => od.columns[i] for i in 1:length(od.labels)]

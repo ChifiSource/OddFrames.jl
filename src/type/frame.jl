@@ -1,6 +1,7 @@
 include("css.jl")
 include("formats.jl")
 include("member_func.jl")
+include("supporting.jl")
 using Dates
 
 #Binding(od::AbstractOddFrame, s::Symbol) = eval(df.)
@@ -40,22 +41,17 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 # Dropna
                 dropna() = _dropna(columns)
                 # Dtype
-                dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
+                dtype(x::Symbol) = typeof(types[findall(x->x == x,
                                                 labels)[1]][1])
                 dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                  labels)[1]], y)
                 # Merge
-                merge!(od::OddFrame; at::Symbol = :end) = _merge!(labels,
+                merge!(od::OddFrame; at::Any = 0) = _merge!(labels, types,
                 columns, od, at)
-                merge!(x::Array; at::Symbol = :end) = _merge!(labels,
-                columns, od, at)
-                merge_defi = length(labels)
-                merge!(od::OddFrame; at::Int64 = 0) = _merge!(labels,
-                columns, od, at)
-                merge!(x::Array, at::Int64 = 0) = _merge!(lables,
-                columns, od, at)
+                merge!(x::Array; at::Any = 0) = _merge!(labels, types,
+                columns, x, at)
                 # type
-                new(labels, columns, types, head, drop, dropna, dtype);
+                new(labels, columns, types, head, drop, dropna, dtype, merge!);
         end
         function OddFrame(file_path::String)
                 # Labels/Columns
@@ -107,26 +103,6 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         function OddFrame(d::Dict)
                 return(OddFrame([p => v for (p, v) in d]))
         end
-        #==
-        Supporting
-                Functions
-        ( Support constructors )
-        ==#
-
-        #==
-        THROWS
-        ==#
-        function length_check(ps)
-                ourlen = length(ps[1])
-[if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
-        end
-
-        function name_check(labels)
-                if length(Set(labels)) != length(labels)
-                throw(ErrorException("Column names may not be duplicated!"))
-                end
-        end
-
 end
 #=============
 IMMUTABLE OddFrame Type
