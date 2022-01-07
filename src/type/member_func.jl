@@ -70,3 +70,27 @@ throw(TypeError("column type casting",
          y, column[1]))
  end
 end
+
+function _merge!(labels::Vector{Symbol}, types::AbstractVector,
+         columns::AbstractVector, od::AbstractOddFrame, at::Any)
+        if typeof(at) == Symbol
+                at = findall(x->x==at, labels)[1]
+        end
+        length_check([od[1], columns[1]])
+        for val in names(od)
+                push!(labels, val, at = at)
+                push!(columns, od[val], at = at)
+                push!(types, od.dtype(val))
+                at += 1
+        end
+end
+function _merge!(labels::Vector{Symbol}, types::AbstractVector,
+         columns::AbstractVector, x::Any, at::Any)
+        if typeof(at) == Symbol
+                at = findall(x->x==at, labels)[1]
+        end
+        length_check([x, columns[1]])
+        push!(labels, Symbol(at), at = at)
+        push!(columns, x, at = at)
+        push!(types, typeof(x[1]), at = at)
+end
