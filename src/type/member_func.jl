@@ -1,8 +1,9 @@
 include("supporting.jl")
-function _typefs(labels, columns, types)
+function _typefs(labels::Vector{Symbol}, columns::AbstractVector, types::AbstractVector)
         # Non-mutating
         # Head
-        head(x::Int64) = _head(labels, columns, types, x)
+        head(x::Int64; html = :show) = _head(labels, columns, types, x,
+        html = html)
         head() = _head(labels, columns, types, 5)
 #        Dtype
         dtype(x::Symbol) = typeof(types[findall(x->x == x,
@@ -13,7 +14,7 @@ function _typefs(labels, columns, types)
         drop!(x::Symbol) = _drop!(x, labels, columns, coldata)
         drop!(x::String) = _drop!(Symbol(x), labels, columns, coldata)
         # Dropna
-        dropna!() = _dropna(columns)
+        dropna!() = _dropna!(columns)
 
         dtype!(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                                 labels)[1]], y)
@@ -24,12 +25,7 @@ function _typefs(labels, columns, types)
                                 columns, x, at)
         return(head, drop!, dropna!, dtype, dtype!, merge!)
 end
-function _typefs(ods::AbstractVector{AbstractOddFrame}),
-         labels::AbstractVector{Symbol})
-         # Non mutating
-        # Head
-        head = _
-end
+
 #==
 Child
     methods
@@ -79,14 +75,6 @@ function _head(labels::AbstractVector,
          end
 
 end
-
-function _head(ods::OddFrame ..., count::Int64, labels::AbstractVector{Symbol})
-        text = "<iframe width = 500, height = 500>"
-        for od in ods
-                text = string(text, h)
-        end
-end
-
 
 function _drop!(column::Symbol, labels::Array{Symbol}, columns::Array,
         coldata::Array)

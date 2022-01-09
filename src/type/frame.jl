@@ -21,6 +21,13 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         #==
         Constructors
         ==#
+        function OddFrame(labels::Vector{Symbol}, columns::Any, 
+                types::Vector{DataType})
+                head, drop!, dropna!, dtype, dtype!, merge! = _typefs(labels,
+                 columns, types)
+                new(labels, columns, types, head, drop!, dropna!, dtype,
+                dtype!, merge!);
+        end
         function OddFrame(p::Pair ...)
                 # TODO Would be nice to combine these loops:
                 labels  = [x[1] for x in p]
@@ -28,10 +35,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
-                head, drop!, dropna!, dtype, dtype!, merge! = _typefs(labels,
-                 columns, types)
-                new(labels, columns, types, head, drop, dropna!, dtype,
-                dytype!, merge!);
+                return(OddFrame(labels, columns, types))
         end
         function OddFrame(file_path::String)
                 # Labels/Columns
@@ -45,6 +49,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                  columns, types)
                 new(labels, columns, types, head, drop, dropna!, dtype,
                 dytype!, merge!);
+                return(OddFrame(labels, columns, types))
         end
         function OddFrame(p::AbstractVector)
                 # Labels/Columns
@@ -53,10 +58,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
-                head, drop!, dropna!, dtype, dtype!, merge! = _typefs(labels,
-                 columns, types)
-                new(labels, columns, types, head, drop, dropna!, dtype,
-                dytype!, merge!);
+                return(OddFrame(labels, columns, types))
         end
         function OddFrame(d::Dict)
                 return(OddFrame([p => v for (p, v) in d]))
@@ -97,15 +99,6 @@ struct ImmutableOddFrame <: AbstractOddFrame
 
 end
 
-mutable struct Group <: OddFrameContainer
-        ods::AbstractVector{AbstractOddFrame}
-        labels::AbstractVector{Symbol}
-        head::Function
-        function Group(ods::AbstractOddFrame ...;
-                 labels = [n for i in 1:length(ods)])
-                 head = _typefs(ods, labels)
-                new(ods, labels)
-        end
-end
+
 
 include("member_func.jl")
