@@ -1,13 +1,51 @@
 include("supporting.jl")
+function _typefs(labels, columns, types)
+        # Non-mutating
+        # Head
+        head(x::Int64) = _head(labels, columns, types, x)
+        head() = _head(labels, columns, types, 5)
+#        Dtype
+        dtype(x::Symbol) = typeof(types[findall(x->x == x,
+                                labels)[1]][1])
+        # Mutating
+        # Drop
+        drop!(x) = _drop!(x, columns)
+        drop!(x::Symbol) = _drop!(x, labels, columns, coldata)
+        drop!(x::String) = _drop!(Symbol(x), labels, columns, coldata)
+        # Dropna
+        dropna!() = _dropna(columns)
+
+        dtype!(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
+                                labels)[1]], y)
+        # Merge
+        merge!(od::OddFrame; at::Any = 0) = _merge!(labels, types,
+                                columns, od, at)
+        merge!(x::Array; at::Any = 0) = _merge!(labels, types,
+                                columns, x, at)
+        return(head, drop!, dropna!, dtype, dtype!, merge!)
+end
+function _typefs(ods::AbstractVector{AbstractOddFrame}),
+         labels::AbstractVector{Symbol})
+         # Non mutating
+        # Head
+        head = _
+end
 #==
 Child
     methods
     ==#
+function _texthead(labels::AbstractVector, columns::AbstractVector,
+        count::Int64, coldata::AbstractVector{Pair})
+        println("Text version of head not written yet...")
+end
 function _head(labels::AbstractVector,
-        columns::AbstractVector, types::AbstractVector, count::Int64)
+        columns::AbstractVector, types::AbstractVector, count::Int64;
+        html = :show)
 
-        println(columns, types)
         coldata = generate_coldata(columns, types)
+        if html == :none
+                return(_head(labels, columns, count, coldata))
+        end
         # Create t-header and t-body tags
         thead = "<thead><tr>"
         tbody = "<tbody>"
@@ -27,7 +65,6 @@ function _head(labels::AbstractVector,
 "</td>") for (count, observ) in enumerate(obs)]
                 tbody = string(tbody, "</tr>")
          end
-         # Finish tags:
          tbody = string(tbody, "</tbody>")
          final = string("<body><table>", thead, tbody,
           "</table></body>", _css)
@@ -35,10 +72,23 @@ function _head(labels::AbstractVector,
          # TODO: Figure out how to determine whether one is in
          #    the REPL, prefereably before any of this function is
          # called.
-         display("text/html", final)
+         if html == :show
+                 display("text/html", final)
+         elseif html == :return
+                 return(final)
+         end
+
 end
 
-function _drop(column::Symbol, labels::Array{Symbol}, columns::Array,
+function _head(ods::OddFrame ..., count::Int64, labels::AbstractVector{Symbol})
+        text = "<iframe width = 500, height = 500>"
+        for od in ods
+                text = string(text, h)
+        end
+end
+
+
+function _drop!(column::Symbol, labels::Array{Symbol}, columns::Array,
         coldata::Array)
         pos = findall(x->x==column, labels)[1]
         deleteat!(labels, pos)
@@ -46,15 +96,15 @@ function _drop(column::Symbol, labels::Array{Symbol}, columns::Array,
         deleteat!(columns, pos)
 end
 
-function _drop(row::Int64, columns::Array)
+function _drop!(row::Int64, columns::Array)
         [deleteat!(col, row) for col in columns]
 end
 
-function _drop(row::Array, columns::Array)
+function _drop!(row::Array, columns::Array)
         [deleteat!(col, row) for col in columns]
 end
 
-function _dropna(columns::Array)
+function _dropna!(columns::Array)
         for col in columns
                 mask = [ismissing(x) for x in col]
                 pos = findall(x->x==1, mask)
@@ -62,7 +112,7 @@ function _dropna(columns::Array)
         end
 end
 
-function _dtype(column, y)
+function _dtype!(column, y)
 try
         [y(i) for i in column]
 catch
