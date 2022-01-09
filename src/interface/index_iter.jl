@@ -1,5 +1,12 @@
 import Base: getindex, setindex!
 #===
+Iterators
+===#
+columns(od::AbstractOddFrame) = od.columns
+labels(od::AbstractOddFrame) = od.labels
+names(od::AbstractOddFrame) = [label for label in od.labels]
+pairs(od::AbstractOddFrame) = [lbl => od.columns[i] for (i, lbl) in enumerate(od.labels)]
+#===
 Indexing
 ===#
 function getindex(od::AbstractOddFrame, col::Symbol)
@@ -12,12 +19,14 @@ function getindex(od::AbstractOddFrame, mask::BitArray)
         pos = findall(x->x==0, mask)
         od.drop(pos)
 end
+function setindex!(od::OddFrame, T::Type, i::Int64)
+        for (iter, obs) in enumerate(od[i])
+                try
+                        obs = parse(T, obs)
+                catch
+                        throw(string("Unable to cast all observations, stopped at x̄-",
+                         iter))
+                end
+        end
+end
 getindex(z::UnitRange) = [od.labels[i] for i in z]
-# setindex!(od, i)
-#===
-Iterators
-===#
-columns(od::AbstractOddFrame) = od.columns
-labels(od::AbstractOddFrame) = od.labels
-names(od::AbstractOddFrame) = [label for label in od.labels]
-pairs(od::AbstractOddFrame) = [od.labels[i] => od.columns[i] for i in 1:length(od.labels)]
