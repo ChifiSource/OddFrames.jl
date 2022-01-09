@@ -2,7 +2,8 @@
   <img src="https://github.com/ChifiSource/OddFrames.jl/blob/Unstable/assets/oddframes.png" width = 300 height = 300>
   <h1>OddFrames.jl</h1>
 
-  
+ </div>
+  **OddFrames.jl** is a new package for managing your data in Julia. Light enough to be a dependency on any project, yet rich enough to get the job done. OddFrames.jl is a selectively object-oriented software for scaling, automating, and building data for scientific use. OddFrames allows the programmer to control mutability and immutability very well, as well as work with many different types of data from within the same constructor.
 # Release Version
 The next release version will be 0.1.0, with the release of OddFrames Basil.
 ```julia
