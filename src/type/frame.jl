@@ -1,6 +1,5 @@
 include("css.jl")
 include("formats.jl")
-include("member_func.jl")
 include("supporting.jl")
 using Dates
 
@@ -14,9 +13,10 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         columns::Array{Any}
         types::Array
         head::Function
-        drop::Function
-        dropna::Function
+        drop!::Function
+        dropna!::Function
         dtype::Function
+        dtype!::Function
         merge!::Function
         #==
         Constructors
@@ -28,30 +28,10 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
-                # Head
-                #== TODO, maybe the best approach to solving
-                the TODO outlined in member_func : 35 is to check
-                REPL or otherwise here?==#
-                head(x::Int64) = _head(labels, columns, types, x, )
-                head() = _head(labels, columns, types, 5)
-                # Drop
-                drop(x) = _drop(x, columns)
-                drop(x::Symbol) = _drop(x, labels, columns, coldata)
-                drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
-                # Dropna
-                dropna() = _dropna(columns)
-                # Dtype
-                dtype(x::Symbol) = typeof(types[findall(x->x == x,
-                                                labels)[1]][1])
-                dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
-                 labels)[1]], y)
-                # Merge
-                merge!(od::OddFrame; at::Any = 0) = _merge!(labels, types,
-                columns, od, at)
-                merge!(x::Array; at::Any = 0) = _merge!(labels, types,
-                columns, x, at)
-                # type
-                new(labels, columns, types, head, drop, dropna, dtype, merge!);
+                head, drop!, dropna!, dtype, dtype!, merge! = _typefs(labels,
+                 columns, types)
+                new(labels, columns, types, head, drop, dropna!, dtype,
+                dytype!, merge!);
         end
         function OddFrame(file_path::String)
                 # Labels/Columns
@@ -61,22 +41,10 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 length_check(columns)
                 name_check(labels)
                 types, columns = read_types(columns)
-                # Coldata
-                coldata = generate_coldata(columns, types)
-                # Head
-                head(x::Int64) = _head(labels, columns, coldata, x, types)
-                head() = _head(labels, columns, types, 5)
-                # Drop
-                drop(x) = _drop(x, columns)
-                drop(x::Symbol) = _drop(x, labels, columns, coldata)
-                drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
-                dropna() = _dropna(columns)
-                dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
-                                                labels)[1]][1])
-                dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
-                 labels)[1]], y)
-                # type
-                new(labels, columns, coldata, head, drop, dropna, dtype);
+                head, drop!, dropna!, dtype, dtype!, merge! = _typefs(labels,
+                 columns, types)
+                new(labels, columns, types, head, drop, dropna!, dtype,
+                dytype!, merge!);
         end
         function OddFrame(p::AbstractVector)
                 # Labels/Columns
@@ -85,20 +53,10 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
-                # Head
-                head(x::Int64) = _head(labels, columns, types, x)
-                head() = _head(labels, columns, types, 5)
-                # Drop
-                drop(x) = _drop(x, columns)
-                drop(x::Symbol) = _drop(x, labels, columns, coldata)
-                drop(x::String) = _drop(Symbol(x), labels, columns, coldata)
-                dropna() = _dropna(columns)
-                dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
-                                                labels)[1]][1])
-                dtype(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
-                 labels)[1]], y)
-                # type
-                new(labels, columns, types, head, drop, dropna, dtype);
+                head, drop!, dropna!, dtype, dtype!, merge! = _typefs(labels,
+                 columns, types)
+                new(labels, columns, types, head, drop, dropna!, dtype,
+                dytype!, merge!);
         end
         function OddFrame(d::Dict)
                 return(OddFrame([p => v for (p, v) in d]))
@@ -138,3 +96,16 @@ struct ImmutableOddFrame <: AbstractOddFrame
     end
 
 end
+
+mutable struct Group <: OddFrameContainer
+        ods::AbstractVector{AbstractOddFrame}
+        labels::AbstractVector{Symbol}
+        head::Function
+        function Group(ods::AbstractOddFrame ...;
+                 labels = [n for i in 1:length(ods)])
+                 head = _typefs(ods, labels)
+                new(ods, labels)
+        end
+end
+
+include("member_func.jl")
