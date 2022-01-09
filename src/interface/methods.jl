@@ -1,4 +1,4 @@
-import Base: show, size, length, +, -
+import Base: show, size, length, -, merge
 using Base.Docs: Binding
 shape(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
 size(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
@@ -8,9 +8,9 @@ show(od::AbstractOddFrame) = od.head(length(od))
 axis(od::AbstractOddFrame, col::Symbol) = findall(x->x==col, od.labels)[1]
 
 function merge(od::AbstractOddFrame,
-        od2::AbstractOddFrame; at::Any = width(od) + 1)
+        od2::AbstractOddFrame; at::Any = 1)
         if typeof(at) == Symbol
-                at = findall(x->x==at, labels)[1]
+                at = axis(od, col)
         end
         if at > width(od) || at < 1
                 throw(BoundsError("Merge position is not an index on this OddFrame!"))
@@ -18,8 +18,8 @@ function merge(od::AbstractOddFrame,
         pairs = []
         for n in 1:width(od)
                 if n == at
-                        for n in 1:width(od2)
-                                push!(pairs, od2.labels[n] => od2.columns[n])
+                        for z in 1:width(od2)
+                                push!(pairs, od2.labels[z] => od2.columns[z])
                         end
                 end
                 push!(pairs, od.labels[n] => od.columns[n])
@@ -27,4 +27,17 @@ function merge(od::AbstractOddFrame,
         return(OddFrame(pairs))
 end
 
-+(od::AbstractOddFrame, od2::AbstractOddFrame) = merge(od, do2)
+function pivot!(od::AbstractMutableOddFrame; at::Any = 1)
+        if typeof(at) == Symbol
+                at = axis(od, col)
+        end
+        if length(od[at]) != length(names(od))
+                throw(DimensionMismatch(string("Got names length of ",
+                length(names(od)), " and at length of ", length(od[at]),
+                ". These values must be equal.")))
+        end
+        labels = od.labels
+        col = od.columns[at]
+        od.labels = col
+        od.col[at] = labels
+end
