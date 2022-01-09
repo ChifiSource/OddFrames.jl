@@ -1,4 +1,5 @@
 import Base: getindex, setindex!
+using Base: parse
 #===
 Iterators
 ===#
@@ -17,12 +18,16 @@ getindex(od::AbstractOddFrame, col::String) = od[Symbol(col)]
 getindex(od::AbstractOddFrame, axis::Int64) = od.columns[axis]
 function getindex(od::AbstractOddFrame, mask::BitArray)
         pos = findall(x->x==0, mask)
-        od.drop(pos)
+        [od.drop!(p) for p in pos]
 end
 function setindex!(od::OddFrame, T::Type, i::Int64)
         for (iter, obs) in enumerate(od[i])
                 try
-                        obs = parse(T, obs)
+                        if type != String
+                                obs = parse(T, string(obs))
+                        else
+                                obs = string(obs)
+                        end
                 catch
                         throw(string("Unable to cast all observations, stopped at x̄-",
                          iter))
