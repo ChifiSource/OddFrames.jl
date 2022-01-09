@@ -6,10 +6,12 @@ o=o= Heirarchy overview =o=o
 |_____ ImmutableOddFrame
 |_____ ImageOddFrame
 =========#
+import Base.Meta: parse
+abstract type OddFrameContainer end
 abstract type AbstractOddFrame end
 abstract type AbstractMutableOddFrame <: AbstractOddFrame end
 include("type/frame.jl")
-export OddFrame, ImmutableOddFrame
+export OddFrame, ImmutableOddFrame, Group
 include("interface/index_iter.jl")
 export getindex, setindex, columns, labels, names, pairs
 # export length_check

@@ -1,3 +1,4 @@
+
 function read_csv(csv_path::String)
     readstr = open(f->read(f, String), csv_path, "r")
     rows = split(readstr, '\n')
