@@ -1,5 +1,4 @@
-import Base: show, size, length, -, merge
-using Base.Docs: Binding
+import Base: show, size, length, +, merge, delete!
 shape(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
 size(od::AbstractOddFrame) = [length(od.labels), length(od.columns[1])]
 length(od::AbstractOddFrame) = length(od.columns[1])
@@ -40,4 +39,11 @@ function pivot!(od::AbstractMutableOddFrame; at::Any = 1)
         col = od.columns[at]
         od.labels = col
         od.col[at] = labels
+end
+function delete!(od::AbstractOddFrame)
+    for name in names(od)
+        od.drop!(name)
+    end
+    od = nothing
+    return(nothing)
 end
