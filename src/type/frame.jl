@@ -21,7 +21,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         #==
         Constructors
         ==#
-        function OddFrame(labels::Vector{Symbol}, columns::Any, 
+        function OddFrame(labels::Vector{Symbol}, columns::Any,
                 types::Vector{DataType})
                 head, drop!, dropna!, dtype, dtype!, merge! = _typefs(labels,
                  columns, types)

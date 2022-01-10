@@ -10,7 +10,7 @@ mutable struct FrameGroup <: OddFrameContainer
         end
 end
 function _typefs(ods::Vector{OddFrame},
-         labels::Vector{Symbol})
+         labels::AbstractVector{Symbol})
          # Non mutating
         # Head
         head(count::Int64 = 5) = _head(ods, count, labels)
