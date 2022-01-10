@@ -11,8 +11,8 @@ function _typefs(labels::Vector{Symbol}, columns::AbstractVector, types::Abstrac
         # Mutating
         # Drop
         drop!(x) = _drop!(x, columns)
-        drop!(x::Symbol) = _drop!(x, labels, columns, coldata)
-        drop!(x::String) = _drop!(Symbol(x), labels, columns, coldata)
+        drop!(x::Symbol) = _drop!(x, labels, columns, types)
+        drop!(x::String) = _drop!(Symbol(x), labels, columns, types)
         # Dropna
         dropna!() = _dropna!(columns)
 
@@ -77,10 +77,10 @@ function _head(labels::AbstractVector,
 end
 
 function _drop!(column::Symbol, labels::Array{Symbol}, columns::Array,
-        coldata::Array)
+        types::Array)
         pos = findall(x->x==column, labels)[1]
         deleteat!(labels, pos)
-        deleteat!(coldata, pos)
+        deleteat!(types, pos)
         deleteat!(columns, pos)
 end
 
@@ -96,7 +96,7 @@ function _dropna!(columns::Array)
         for col in columns
                 mask = [ismissing(x) for x in col]
                 pos = findall(x->x==1, mask)
-                _drop(pos, columns)
+                _drop!(pos, columns)
         end
 end
 
