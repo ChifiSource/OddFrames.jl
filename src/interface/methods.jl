@@ -6,10 +6,12 @@ width(od::AbstractOddFrame) = length(od.labels)
 show(od::AbstractOddFrame) = od.head(length(od))
 axis(od::AbstractOddFrame, col::Symbol) = findall(x->x==col, od.labels)[1]
 function mutablecopy()
-        
+        values = copy(Array{Pair}(od))
+        return(OddFrame(values))
 end
 function immutablecopy()
-
+        values = copy(Array{Pair}(od))
+        return(ImmutableOddFrame(values))
 end
 function copy(od::AbstractOddFrame)
     values = copy(Array{Pair}(od))
