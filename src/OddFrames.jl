@@ -19,10 +19,10 @@ include("interface/grouping.jl")
 export FrameGroup
 
 include("interface/index_iter.jl")
-export getindex, setindex, columns, labels, names, pairs
+export getindex, setindex!, columns, labels, names, pairs
 # export length_check
 include("interface/methods.jl")
-export shape, show, length, merge, +
+export shape, show, length, merge, +, names, pivot!, delete!
 include("interface/basetools.jl")
 export push!
 end

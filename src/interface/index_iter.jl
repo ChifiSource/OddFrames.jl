@@ -3,10 +3,17 @@ using Base: parse
 #===
 Iterators
 ===#
+frames(fg::FrameGroup) = [od for od in ods]
 columns(od::AbstractOddFrame) = od.columns
 labels(od::AbstractOddFrame) = od.labels
+labels(fg::AbstractOddFrame) = fg.labels
 names(od::AbstractOddFrame) = [label for label in od.labels]
-pairs(od::AbstractOddFrame) = [lbl => od.columns[i] for (i, lbl) in enumerate(od.labels)]
+names(fg::OddFrameContainer) = [label for label in fg.labels]
+
+#==
+Casts
+==#
+Array{Pair}(od::AbstractOddFrame) = [lbl => od.columns[i] for (i, lbl) in enumerate(od.labels)]
 #===
 Indexing
 ===#
@@ -35,3 +42,5 @@ function setindex!(od::OddFrame, T::Type, i::Int64)
         end
 end
 getindex(z::UnitRange) = [od.labels[i] for i in z]
+
+getindex(fg::OddFrameContainer, axis::Int64) = fg.ods[axis])
