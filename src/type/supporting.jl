@@ -1,3 +1,4 @@
+mean(x) = sum(x) / length(x)
 function generate_coldata(columns::Array, types::Array)
         pairs = []
         for (i, T) in enumerate(types)
@@ -20,4 +21,17 @@ function generate_coldata(columns::Array, types::Array)
                 end
         end
         pairs
+end
+#==
+THROWS
+==#
+function length_check(ps)
+        ourlen = length(ps[1])
+[if length(x) != ourlen throw(DimensionMismatch("Columns must be the same size")) end for x in ps]
+end
+
+function name_check(labels)
+        if length(Set(labels)) != length(labels)
+        throw(ErrorException("Column names may not be duplicated!"))
+        end
 end
