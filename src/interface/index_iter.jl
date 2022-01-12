@@ -3,7 +3,7 @@ using Base: parse
 #===
 Iterators
 ===#
-frames(fg::FrameGroup) = [od for od in ods]
+frames(fg::FrameGroup) = [od for od in fg.ods]
 columns(od::AbstractOddFrame) = od.columns
 labels(od::AbstractOddFrame) = od.labels
 labels(fg::AbstractOddFrame) = fg.labels
