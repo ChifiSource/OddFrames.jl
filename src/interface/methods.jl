@@ -5,6 +5,7 @@ length(od::AbstractOddFrame) = length(od.columns[1])
 width(od::AbstractOddFrame) = length(od.labels)
 show(od::AbstractOddFrame) = od.head(length(od))
 axis(od::AbstractOddFrame, col::Symbol) = findall(x->x==col, od.labels)[1]
+apply!(array::AbstractArray, f::Function) = [f(x) for x in array]
 function mutablecopy()
         values = copy(Array{Pair}(od))
         return(OddFrame(values))
@@ -13,20 +14,23 @@ function immutablecopy()
         values = copy(Array{Pair}(od))
         return(ImmutableOddFrame(values))
 end
-function copy(od::AbstractOddFrame)
+function copy(od::AbstractMutableOddFrame)
     values = copy(Array{Pair}(od))
     return(OddFrame(values))
 end
-function copy(fg::OddFrameContainer)
-
+function copy(od::ImmutableOddFrame)
+        values = copy(Array{Pair}(od))
+        return(ImmutableOddFrame(values))
 end
-function deepcopy(od::AbstractOddFrame)
 
+function copy(fg::OddFrameContainer)
+        ods = [copy(od) for od in frames(fg)]
+        return(FrameGroup(ods))
 end
 
 function deepcopy(fg::OddFrameContainer)
-        copy_array = []
-        labels = [copy(label) for label in labels]
+        ods = [copy(od) for od in frames(fg)]
+        return(FrameGroup(ods))
 end
 function merge(od::AbstractOddFrame,
         od2::AbstractOddFrame; at::Any = 1)
