@@ -2,43 +2,57 @@ include("supporting.jl")
 function member_immutables(labels::Vector{Symbol},
          columns::AbstractVector, types::AbstractVector)
         # Non-mutating
-        # Head
+        # head
         head(x::Int64; html = :show) = _head(labels, columns, types, x,
         html = html)
         head() = _head(labels, columns, types, 5)
-#        Dtype
+        # dtype
         dtype(x::Symbol) = typeof(types[findall(x->x == x,
                                 labels)[1]][1])
-        # Mutating
-        # Drop
-        drop!(x) = _drop!(x, columns)
-        drop!(x::Symbol) = _drop!(x, labels, columns, types)
-        drop!(x::String) = _drop!(Symbol(x), labels, columns, types)
-        # Dropna
-        dropna!() = _dropna!(columns)
-
-        dtype!(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
-                                labels)[1]], y)
-        # Merge
-        merge!(od::OddFrame; at::Any = 0) = _merge!(labels, types,
-                                columns, od, at)
-        merge!(x::Array; at::Any = 0) = _merge!(labels, types,
-                                columns, x, at)
-        not(ls::Vector{Symbol}, labels)
-        only(ls::Vector{Symbol}) =
+        # not
+        not(ls::Symbol ...) = _not(ls, labels, columns)
+        not(ls::UnitRange ...) = _not(ls, labels, columns)
+        not(ls::Int64 ...) = _not(ls, labels, columns)
+        # only
+        only(ls::Symbol ...) = _only(ls, labels, columns)
+        only(ls::UnitRange ...) = _only(ls, labels, columns)
+        only(ls::Int64 ...) = _only(ls, labels, columns)
         return(head, drop!, dropna!, dtype, dtype!, merge!)
 end
 
 function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         types::AbstractVector)
+        # Mutating
+        # drop!
+        drop!(x) = _drop!(x, columns)
+        drop!(x::Symbol) = _drop!(x, labels, columns, types)
+        drop!(x::String) = _drop!(Symbol(x), labels, columns, types)
+        # dropna!
+        dropna!() = _dropna!(columns)
+        # dtype!
+        dtype!(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
+                                labels)[1]], y)
+        # merge!
+        merge!(od::OddFrame; at::Any = 0) = _merge!(labels, types,
+                                columns, od, at)
+        merge!(x::Array; at::Any = 0) = _merge!(labels, types,
+                                columns, x, at)
+        # not!
+        not!(ls::Symbol ...) = _not!(ls, labels, columns, types)
+        not!(ls::UnitRange ...) = _not!(ls, labels, columns, types)
+        not!(ls::Int64 ...) = _not!(ls, labels, columns, types)
+        # only!
+        only!(ls::Symbol ...) = _only!(ls, labels, columns, types)
+        only!(ls::UnitRange ...) = _only!(ls, labels, columns, types)
+        only!(ls::Int64 ...) = _only!(ls, labels, columns, types)
 end
 #==
 _not()
 ==#
-function _not(symbols::Any, labels, )
-
+function _not(symbols::Any, labels, columns)
+        if typeof(symbols[1]) ==
 end
-function _not(range::UnitRange)
+function _not(range::UnitRange, labels, columns)
 
 end
 #==
@@ -75,7 +89,6 @@ end
 function _head(labels::AbstractVector,
         columns::AbstractVector, types::AbstractVector, count::Int64;
         html = :show)
-
         coldata = generate_coldata(columns, types)
         if html == :none
                 return(_head(labels, columns, count, coldata))
