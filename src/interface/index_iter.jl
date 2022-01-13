@@ -23,6 +23,7 @@ function getindex(od::AbstractOddFrame, col::Symbol)
 end
 getindex(od::AbstractOddFrame, col::String) = od[Symbol(col)]
 getindex(od::AbstractOddFrame, axis::Int64) = od.columns[axis]
+getindex(od::AbstractOddFrame, range::UnitRange) = columns(od.only())
 function getindex(od::AbstractOddFrame, mask::BitArray)
         pos = findall(x->x==0, mask)
         [od.drop!(p) for p in pos]

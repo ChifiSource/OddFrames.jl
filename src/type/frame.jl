@@ -29,26 +29,22 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 dtype!, merge!);
         end
         function OddFrame(p::Pair ...)
-                # TODO Would be nice to combine these loops:
-                labels  = [x[1] for x in p]
-                columns = [x[2] for x in p]
+                labels, columns = ikeys(p), ivalues(p)
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
                 return(OddFrame(labels, columns, types))
         end
-        function OddFrame(file_path::String)
-                # Labels/Columns
-                extensions = Dict("csv" => read_csv)
+        function OddFrame(file_path::String;
+                fextensions::Pair{String, Function} = [])
+                extensions = ["csv" => read_csv]
+                [push!(extensions, fext) for fext in fextensions]
+                extensions = OddFrame(extensions)
                 extension = split(file_path, '.')[2]
                 labels, columns = extensions[extension](file_path)
                 length_check(columns)
                 name_check(labels)
                 types, columns = read_types(columns)
-                head, drop!, dropna!, dtype, dtype!, merge! = _typefs(labels,
-                 columns, types)
-                new(labels, columns, types, head, drop, dropna!, dtype,
-                dytype!, merge!);
                 return(OddFrame(labels, columns, types))
         end
         function OddFrame(p::AbstractVector)

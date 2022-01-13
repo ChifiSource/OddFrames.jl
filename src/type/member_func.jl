@@ -37,10 +37,6 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
                                 columns, od, at)
         merge!(x::Array; at::Any = 0) = _merge!(labels, types,
                                 columns, x, at)
-        # not!
-        not!(ls::Symbol ...) = _not!(ls, labels, columns, types)
-        not!(ls::UnitRange ...) = _not!(ls, labels, columns, types)
-        not!(ls::Int64 ...) = _not!(ls, labels, columns, types)
         # only!
         only!(ls::Symbol ...) = _only!(ls, labels, columns, types)
         only!(ls::UnitRange ...) = _only!(ls, labels, columns, types)
@@ -49,19 +45,13 @@ end
 #==
 _not()
 ==#
-function _not(symbols::Any, labels, columns)
-        if typeof(symbols[1]) ==
+function _not(i::Any, labels::Vector{Symbol}, columns::AbstractArray)
+        mask = [i in labels for i in labels]
+        nlabels = labels[mask]
+        ncols = columns[mask]
+        return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
 end
 function _not(range::UnitRange, labels, columns)
-
-end
-#==
-_not!()
-==#
-function _not!(symbols::Any)
-
-end
-function _not!(range::UnitRange)
 
 end
 
