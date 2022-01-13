@@ -1,5 +1,6 @@
 include("supporting.jl")
-function _typefs(labels::Vector{Symbol}, columns::AbstractVector, types::AbstractVector)
+function member_immutables(labels::Vector{Symbol},
+         columns::AbstractVector, types::AbstractVector)
         # Non-mutating
         # Head
         head(x::Int64; html = :show) = _head(labels, columns, types, x,
@@ -23,7 +24,44 @@ function _typefs(labels::Vector{Symbol}, columns::AbstractVector, types::Abstrac
                                 columns, od, at)
         merge!(x::Array; at::Any = 0) = _merge!(labels, types,
                                 columns, x, at)
+        not(ls::Vector{Symbol}, labels)
+        only(ls::Vector{Symbol}) =
         return(head, drop!, dropna!, dtype, dtype!, merge!)
+end
+
+function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
+        types::AbstractVector)
+end
+#==
+_not()
+==#
+function _not(symbols::Any, labels, )
+
+end
+function _not(range::UnitRange)
+
+end
+#==
+_not!()
+==#
+function _not!(symbols::Any)
+
+end
+function _not!(range::UnitRange)
+
+end
+
+#==
+_only()
+==#
+function _only()
+
+end
+#==
+_only!()
+==#
+function _only!()
+
 end
 
 #==
