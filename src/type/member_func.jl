@@ -45,27 +45,43 @@ end
 #==
 _not()
 ==#
-function _not(i::Any, labels::Vector{Symbol}, columns::AbstractArray)
-        mask = [i in labels for i in labels]
+function _not(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
+        mask = [val ! in i for i in labels]
         nlabels = labels[mask]
         ncols = columns[mask]
         return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
 end
-function _not(range::UnitRange, labels, columns)
-
+function _not(i::Tuple{Int64}, labels::Vector{Symbol}, columns::AbstractArray)
+        mask = [z ! in i for z in 1:length(labels)]
+        nlabels = labels[mask]
+        ncols = columns[mask]
+        return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
+end
+function _not(ranges::Tuple{UnitRange}, labels::Vector{Symbol},
+        columns::AbstractArray)
+        badindexes = []
+        for range in ranges
+                badindexes = vcat(badindexes, Array(range))
+        end
+        __not(Tuple(badindexes))
 end
 
 #==
 _only()
 ==#
-function _only()
-
+function _only(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
+        mask = [val in i for i in labels]
+        nlabels = labels[mask]
+        ncols = columns[mask]
+        return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
 end
 #==
 _only!()
 ==#
-function _only!()
-
+function _only!(i::Tuple{Symbol}, labels::Vector{Symbol},
+         columns::AbstractArray, types::Vector{Type})
+        mask = [label in i for label in labels]
+        columns = _drop!(mask, labels, columns, types)
 end
 
 #==
@@ -124,7 +140,10 @@ function _drop!(column::Symbol, labels::Array{Symbol}, columns::Array,
         deleteat!(types, pos)
         deleteat!(columns, pos)
 end
-
+function  _drop!(mask::BitArray, labels::Vector{Symbol},
+         columns::AbstractArray, types::AbstractArray)
+        pos = findall(x->x==0, mask)
+end
 function _drop!(row::Int64, columns::Array)
         [deleteat!(col, row) for col in columns]
 end
