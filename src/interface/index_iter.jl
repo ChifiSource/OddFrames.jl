@@ -272,3 +272,7 @@ fg[1]
 ```
 """
 getindex(fg::OddFrameContainer, axis::Int64) = fg.ods[axis])
+
+function getindex(od::AbstractOddFrame, observation::Int64, labels::Symbol ...)
+
+end
