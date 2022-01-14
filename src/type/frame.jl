@@ -91,7 +91,7 @@ struct ImmutableOddFrame <: AbstractOddFrame
             types = Tuple([typeof(x[1]) for x in columns])
             return(ImmutableOddFrame(labels, columns, types))
     end
-    
+
     function ImmutableOddFrame(p::AbstractVector{Pair})
             labels, columns = Tuple(ikeys(p)), Tuple(ivalues(p))
             length_check(columns)
@@ -99,6 +99,11 @@ struct ImmutableOddFrame <: AbstractOddFrame
             types = Tuple([typeof(x[1]) for x in columns])
             return(ImmutableOddFrame(labels, columns, types))
     end
+    ImmutableOddFrame(file_path::String;
+    fextensions::Pair{String, Function} = []) = immutablecopy(OddFrame(file_path,
+    fextensions = fextensions)
+    )
+    ImmutableOddFrame(d::Dict) = immutablecopy(OddFrame(d))
 end
 
 
