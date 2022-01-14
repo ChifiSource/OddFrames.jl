@@ -1,5 +1,3 @@
-import Base: push!, getindex
-
 function push!(iter::AbstractVector, val::Any; at::Int64 = length(iter))
     begin_vec = iter[1:at - 1]
     n_vec = iter[at:length(iter)]

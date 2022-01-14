@@ -79,9 +79,13 @@ be immutable unless specified by being this sub-type.
 ### sub-types
 - OddFrame
 """
-# Deps :
-
 abstract type AbstractMutableOddFrame <: AbstractOddFrame end
+# Deps :
+import Base: show, size, length, +, merge, delete!, copy, deepcopy, Matrix
+import Base: push!, getindex, setindex!
+
+using Base: parse
+using Dates
 # Includes/Exports :
 export OddFrameContainer, AbstractOddFrame, AbstractMutableOddFrame
 include("type/frame.jl")
@@ -89,11 +93,14 @@ export OddFrame, ImmutableOddFrame
 include("interface/grouping.jl")
 export FrameGroup
 include("interface/index_iter.jl")
-export getindex, setindex!, columns, labels, names, pairs
+export frames, columns, labels, names
+export Array{Pair}
 include("interface/methods.jl")
-export shape, show, length, merge, +, names, pivot!, delete!
+export width, show, axis
+export mutablecopy, immutablecopy, copy, deepcopy
+export merge
+export delete!, pivot!, apply!
 include("interface/linalg.jl")
-
+export shape, size, length
 include("interface/basetools.jl")
-export push!
 end

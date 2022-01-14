@@ -1,5 +1,3 @@
-import Base: getindex, setindex!
-using Base: parse
 #===
 Iterators
 ===#
