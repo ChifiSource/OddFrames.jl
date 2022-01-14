@@ -12,20 +12,25 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         columns::Array{Any}
         types::Array
         head::Function
+        dtype::Function
+        not::Function
+        only::Function
         drop!::Function
         dropna!::Function
-        dtype::Function
         dtype!::Function
         merge!::Function
+        only!::Function
         #==
         Constructors
         ==#
         function OddFrame(labels::Vector{Symbol}, columns::Any,
                 types::Vector{DataType})
-                head, drop!, dropna!, dtype, dtype!, merge! = _typefs(labels,
-                 columns, types)
-                new(labels, columns, types, head, drop!, dropna!, dtype,
-                dtype!, merge!);
+                head, dtype, not, only = member_immutables(labels, columns,
+                                                                types)
+                drop!, dropna!, dtype!, merge!, only! = member_mutables(labels,
+                columns, types)
+                return(new(labels, columns, types, head, dtype, not, only, drop!,
+                dropna!, dtype!, merge!, only!))
         end
         function OddFrame(p::Pair ...)
                 labels, columns = ikeys(p), ivalues(p)
@@ -46,10 +51,9 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 types, columns = read_types(columns)
                 return(OddFrame(labels, columns, types))
         end
-        function OddFrame(p::AbstractVector)
+        function OddFrame(p::AbstractVector{Pair})
                 # Labels/Columns
-                labels  = [x[1] for x in p]
-                columns = [x[2] for x in p]
+                labels, columns = ikeys(p), ivalues(p)
                 length_check(columns)
                 name_check(labels)
                 types = [typeof(x[1]) for x in columns]
@@ -60,38 +64,41 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         end
 end
 #=============
-IMMUTABLE OddFrame Type
+IMMUTABLE OddFrame
 =============#
 struct ImmutableOddFrame <: AbstractOddFrame
-        labels::Array{Symbol}
-        columns::Array{Any}
-        coldata::Array{Pair}
+        labels::Tuple{Symbol}
+        columns::Tuple{Any}
+        types::Tuple{DataType}
         head::Function
         dtype::Function
+        not::Function
+        only::Function
     #==
     Constructors
     ==#
-    function ImmutableOddFrame(p::Pair ...)
-        od = OddFrame(p)
-        labels, columns = Tuple(od.labels), Tuple(od.columns)
-        coldata = Tuple(od.coldata)
-        dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
-             labels)[1]][1])
-        head(x::Int64) = _head(labels, columns, coldata, x)
-                head() = _head(labels, columns, coldata, 5)
-        new(labels, columns, coldata, head, dtype)
-    end
-    function ImmutableOddFrame(file_path::String)
-        od = OddFrame(file_path)
-        labels, columns = Tuple(od.labels), Tuple(od.columns)
-        coldata = Tuple(od.coldata)
-        dtype(x::Symbol) = typeof(coldata[findall(x->x == x,
-             labels)[1]][1])
-        head(x::Int64) = _head(labels, columns, coldata, x)
-                head() = _head(labels, columns, types, 5)
-        new(labels, columns, coldata, head, dtype)
+    function ImmutableOddFrame(labels::Tuple{Symbol}, columns::Any,
+            types::Tuple{DataType})
+            head, dtype, not, only = member_immutables(labels, columns,
+                                                            types)
+            return(new(labels, columns, types, head, dtype, not, only))
     end
 
+    function ImmutableOddFrame(p::Pair ...)
+            labels, columns = Tuple(ikeys(p)), Tuple(ivalues(p))
+            length_check(columns)
+            name_check(labels)
+            types = Tuple([typeof(x[1]) for x in columns])
+            return(ImmutableOddFrame(labels, columns, types))
+    end
+    
+    function ImmutableOddFrame(p::AbstractVector{Pair})
+            labels, columns = Tuple(ikeys(p)), Tuple(ivalues(p))
+            length_check(columns)
+            name_check(labels)
+            types = Tuple([typeof(x[1]) for x in columns])
+            return(ImmutableOddFrame(labels, columns, types))
+    end
 end
 
 

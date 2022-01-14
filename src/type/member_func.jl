@@ -17,7 +17,7 @@ function member_immutables(labels::Vector{Symbol},
         only(ls::Symbol ...) = _only(ls, labels, columns)
         only(ls::UnitRange ...) = _only(ls, labels, columns)
         only(ls::Int64 ...) = _only(ls, labels, columns)
-        return(head, drop!, dropna!, dtype, dtype!, merge!)
+        return(head, dtype, not, only)
 end
 
 function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
@@ -41,6 +41,7 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         only!(ls::Symbol ...) = _only!(ls, labels, columns, types)
         only!(ls::UnitRange ...) = _only!(ls, labels, columns, types)
         only!(ls::Int64 ...) = _only!(ls, labels, columns, types)
+        return(drop!, dropna!, dtype!, merge!, only!)
 end
 #==
 _not()
