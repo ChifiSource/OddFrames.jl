@@ -1,6 +1,6 @@
 """
 - **Extras**
-- Fill Functions
+- Index Functions
 ### nothing()
 A simple function bind for nothing (allowing one to use nothing as a function).
 - **posarg[1]** od::AbstractOddFrame => The first OddFrame we that we want to
@@ -26,4 +26,8 @@ columns(od3)
 """
 function nothing()
         return nothing
+end
+
+function zeros()
+        return(0)
 end

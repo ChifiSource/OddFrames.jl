@@ -1,8 +1,6 @@
 include("css.jl")
 include("formats.jl")
 include("supporting.jl")
-
-#Binding(od::AbstractOddFrame, s::Symbol) = eval(df.)
 #=============
 OddFrame Type
 =============#
@@ -213,7 +211,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 types, columns = read_types(columns)
                 return(OddFrame(labels, columns, types))
         end
-        function OddFrame(p::AbstractVector{Pair})
+        function OddFrame(p::AbstractArray)
                 # Labels/Columns
                 labels, columns = ikeys(p), ivalues(p)
                 length_check(columns)

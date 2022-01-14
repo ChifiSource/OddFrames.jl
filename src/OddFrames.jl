@@ -147,7 +147,6 @@ include("interface/grouping.jl")
 export FrameGroup
 include("interface/index_iter.jl")
 export frames, columns, labels, names
-export Array{Pair}
 include("interface/methods.jl")
 export width, show, axis
 export mutablecopy, immutablecopy, copy, deepcopy

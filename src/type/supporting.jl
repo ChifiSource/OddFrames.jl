@@ -1,5 +1,5 @@
-
 mean(x) = sum(x) / length(x)
+
 axis(labels::Vector{Symbol}, col::Symbol) = findall(x->x==col, labels)[1]
 function generate_coldata(columns::Array, types::Array)
         pairs = []

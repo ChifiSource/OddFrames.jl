@@ -28,9 +28,9 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         drop!(x::Symbol) = _drop!(x, labels, columns, types)
         drop!(x::String) = _drop!(Symbol(x), labels, columns, types)
         # dropna!
-        dropna!() = _dropna!(columns)
+        dropna!() = _dropna!(labels, columns, types)
         # dtype!
-        dtype!(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
+        dtype!(x::Symbol, y::Type) = _dtype!(columns[findall(x->x == x,
                                 labels)[1]], y)
         # merge!
         merge!(od::OddFrame; at::Any = 1) = _merge!(labels, types,
@@ -47,13 +47,13 @@ end
 _not()
 ==#
 function _not(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
-        mask = [val ! in i for i in labels]
+        mask = [! (val in i) for val in labels]
         nlabels = labels[mask]
         ncols = columns[mask]
         return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
 end
 function _not(i::Tuple{Int64}, labels::Vector{Symbol}, columns::AbstractArray)
-        mask = [z ! in i for z in 1:length(labels)]
+        mask = [! (z in i) for z in 1:length(labels)]
         nlabels = labels[mask]
         ncols = columns[mask]
         return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
@@ -71,7 +71,7 @@ end
 _only()
 ==#
 function _only(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
-        mask = [val in i for i in labels]
+        mask = [val in i for val in labels]
         nlabels = labels[mask]
         ncols = columns[mask]
         return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
@@ -144,21 +144,23 @@ end
 function  _drop!(mask::BitArray, labels::Vector{Symbol},
          columns::AbstractArray, types::AbstractArray)
         pos = findall(x->x==0, mask)
+        _drop(pos, column, labels, types)
 end
-function _drop!(row::Int64, columns::Array)
+function _drop!(row::Int64, columns::Array, labels::Vector{Symbol},
+        types::Array{Type})
         [deleteat!(col, row) for col in columns]
 end
 
-function _drop!(row::Array, columns::Array)
-        [deleteat!(col, row) for col in columns]
+function _drop!(rows::Array, columns::Array, labels::Vector{Symbol},
+        types::Array{Type})
+        [_drop!(value, columns, labels, types) for value in rows]
 end
-
-function _dropna!(columns::Array)
-        for col in columns
-                mask = [ismissing(x) for x in col]
-                pos = findall(x->x==1, mask)
-                _drop!(pos, columns)
-        end
+# TODO In the future, I would like to replace this call instead with a drop(na) where
+#   na is a filter function.
+function _dropna!(labels::Vector{Symbol}, columns::Array, types::Array)
+        drops = []
+        pos = [vcat(findall(x->ismissing(x), column), drops) for column in columns(od)]
+        _drop!(pos, columns, labels, types)
 end
 
 function _dtype!(column, y)
