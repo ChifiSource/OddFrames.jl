@@ -1,5 +1,16 @@
 # CHANGES
-### Labels - Bug fix - TODO - New Feature - Not Implemented - TODO C (TODO Carryover)
+### Labels - Bug fix - TODO - TODO C (TODO Carryover)
+#### 
+#### 0.0.8 Rework adjustment
+
+#### 0.0.7 Enhancing assets, extending methods.
+- **TODO C** Add more information and type casting for dates, times, and other feature-types.
+- **TODO C** Add image_URI, Dates, and more to feature types.
+- **TODO C** Add majority for classes
+**TODO** Write test portion.
+**TODO** Finish all documentation.
+**TODO** fill()/fill!() with some fill functions.
+**TODO** Add more casts
 #### 0.0.6 Enriched API
 - **TODO C** Add more information for dates and times, and other feature-types.
 - **TODO C** Add majority class for classes.
@@ -13,6 +24,7 @@
 - Added casts.jl, and more casts coming.
 - merge!, merge, not, only!, only pivot!, and fill!/fill.
 - Added documentation, testing projects
+- Created template for future docs here.
 #### 0.0.5 FIXES AND ADDITIONS
 - **TODO C** Add more information for dates and times, and other feature-types.
 - **TODO** Add string parser to parse data-types that are strings.
