@@ -11,8 +11,8 @@ be looking at the constructors, listed below, not this documentation.
 comprise this frame group.
 - labels::AbstractVector{Symbol} => Labels is a vector of labels that are used to
 call, manipulate, and work with the OddFrames provided in this type.
-- head::Function => Binded call to
-### Bindings
+- head::Function => Binded call to _head
+## Bindings
 #### FrameGroup.head(count::Int64 = 5) => _head
 The head function just does subsequent head() calls for each OddFrame in the
         group, providing headings with labels in between. This displays the
@@ -46,7 +46,6 @@ the labels key-word argument
 labels = [:od1, :od2]
 fg = FrameGroup(OddFrame(:y => [5, 8, 2]), OddFrame(:x => [5, 15]),
  labels = labels)
-```
 ```
         """
         function FrameGroup(ods::AbstractOddFrame ...;

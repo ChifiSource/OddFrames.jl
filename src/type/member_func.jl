@@ -33,9 +33,9 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         dtype!(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                                 labels)[1]], y)
         # merge!
-        merge!(od::OddFrame; at::Any = 0) = _merge!(labels, types,
+        merge!(od::OddFrame; at::Any = 1) = _merge!(labels, types,
                                 columns, od, at)
-        merge!(x::Array; at::Any = 0) = _merge!(labels, types,
+        merge!(x::Array; at::Any = 1) = _merge!(labels, types,
                                 columns, x, at)
         # only!
         only!(ls::Symbol ...) = _only!(ls, labels, columns, types)
@@ -89,7 +89,7 @@ end
 Child
     methods
     ==#
-function _texthead(labels::AbstractVector, columns::AbstractVector,
+function _txthead(labels::AbstractVector, columns::AbstractVector,
         count::Int64, coldata::AbstractVector{Pair})
         println("Text version of head not written yet...")
 end
@@ -98,7 +98,7 @@ function _head(labels::AbstractVector,
         html = :show)
         coldata = generate_coldata(columns, types)
         if html == :none
-                return(_head(labels, columns, count, coldata))
+                return(_txthead(labels, columns, count, coldata))
         end
         # Create t-header and t-body tags
         thead = "<thead><tr>"
@@ -192,4 +192,12 @@ function _merge!(labels::Vector{Symbol}, types::AbstractVector,
         push!(labels, Symbol(at), at = at)
         push!(columns, x, at = at)
         push!(types, typeof(x[1]), at = at)
+end
+
+function _fill!()
+
+end
+
+function _fillna!()
+
 end

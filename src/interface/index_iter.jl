@@ -116,11 +116,6 @@ names(fg)
 ```
 """
 names(fg::OddFrameContainer) = [label for label in fg.labels]
-
-#==
-Casts
-==#
-Array{Pair}(od::AbstractOddFrame) = [lbl => od.columns[i] for (i, lbl) in enumerate(od.labels)]
 #===
 Indexing
 ===#

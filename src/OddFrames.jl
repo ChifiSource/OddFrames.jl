@@ -35,6 +35,8 @@ framegroup type.
 - **index_iter.jl** - Countains indexing and iteration calls for OddFrames.
 - **linalg.jl** - Provides some linear algebra operators, expressions, methods,
 and casts, making this package a bit more applicable for scientific computing.
+- **casts.jl** - Some general purpose casting for translating OddFrames into
+Julia types.
 ### type/
 - **css.jl** - Contains a global variable, _css, that is used to set global
 Julia CSS to the OddFrames styling.
@@ -153,5 +155,6 @@ export merge
 export delete!, pivot!, apply!
 include("interface/linalg.jl")
 export shape, size, length
+include("type/casts.jl")
 include("interface/basetools.jl")
 end
