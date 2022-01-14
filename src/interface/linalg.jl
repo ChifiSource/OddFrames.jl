@@ -21,6 +21,7 @@ shape(od)
 """
 shape(od::AbstractOddFrame) = (width(od), length(od))
 """
+### from OddFrames size(od::AbstractOddFrame)
 - **Interface**
 - Linear Algebra
 ### size(od::AbstractOddFrame)
@@ -61,6 +62,7 @@ length(od)
 length(od::AbstractOddFrame) = length(od.columns[1])
 
 """
+### from OddFrames length(od::AbstractOddFrame)
 - **Interface**
 - Linear Algebra
 ### Matrix(od::AbstractOddFrame)
