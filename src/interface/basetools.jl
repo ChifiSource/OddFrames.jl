@@ -46,7 +46,7 @@ ikeys(pairs)
 [:A, :B]
 ```
 """
-ikeys(pairs::Vector{Pair}) = [p[1] for p in pairs]
+ikeys(pairs::Any) = [p[1] for p in pairs]
 """
 - **From OddFrames**
 - Base Tools
@@ -63,7 +63,7 @@ ivalues(pairs)
 [[5, 10], [5, 10]]
 ```
 """
-ivalues(pairs::Vector{Pair}) = [p[2] for p in pairs]
+ivalues(pairs::Any) = [p[2] for p in pairs]
 """
 - **From OddFrames**
 - Base Tools
