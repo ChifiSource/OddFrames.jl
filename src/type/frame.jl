@@ -1,8 +1,6 @@
 include("css.jl")
 include("formats.jl")
 include("supporting.jl")
-
-#Binding(od::AbstractOddFrame, s::Symbol) = eval(df.)
 #=============
 OddFrame Type
 =============#

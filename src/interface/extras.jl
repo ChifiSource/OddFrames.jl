@@ -27,3 +27,9 @@ columns(od3)
 function nothing()
         return nothing
 end
+
+function zeros()
+        return(0)
+end
+
+mean(x) = sum(x) / length(x)

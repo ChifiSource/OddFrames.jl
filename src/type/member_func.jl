@@ -47,13 +47,13 @@ end
 _not()
 ==#
 function _not(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
-        mask = [val ! in i for i in labels]
+        mask = [! val in i for i in labels]
         nlabels = labels[mask]
         ncols = columns[mask]
         return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
 end
 function _not(i::Tuple{Int64}, labels::Vector{Symbol}, columns::AbstractArray)
-        mask = [z ! in i for z in 1:length(labels)]
+        mask = [! z in i for z in 1:length(labels)]
         nlabels = labels[mask]
         ncols = columns[mask]
         return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
