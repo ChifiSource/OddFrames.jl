@@ -3,4 +3,21 @@
 julia_version = "1.7.1"
 manifest_format = "2.0"
 
-[deps]
+[[deps.Dates]]
+deps = ["Printf"]
+uuid = "ade2ca70-3891-5945-98fb-dc099432e06a"
+
+[[deps.OddFrames]]
+deps = ["Dates"]
+git-tree-sha1 = "392daa38fb9118cc430bc55e052ecbf840bdc2d9"
+repo-rev = "Unstable"
+repo-url = "https://github.com/ChifiSource/OddFrames.jl.git"
+uuid = "92848680-4a49-47bc-a2e8-b1e6b5e2fbf7"
+version = "0.0.6"
+
+[[deps.Printf]]
+deps = ["Unicode"]
+uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
+
+[[deps.Unicode]]
+uuid = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"

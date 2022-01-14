@@ -15,11 +15,12 @@ Documenter.makedocs(root = "./",
        pages = [
                "OddFrames.jl" => "README.md",
                "Getting Started" => "GettingStarted.md",
-               "Getting Experienced" => "GettingExperienced.md"
+               "Getting Experienced" => "GettingExperienced.md",
                "Framework Reference" => "APIReference.md",
-               "CHANGELOG" => "CHANGELOG.md",
+               "Extending OddFrames" => "ExtendingOddFrames.md",
                "CONTRIBUTING" => "CONTRIBUTING.md",
-               "Models" => "models.md"
+               "Developer API" => "DeveloperAPI.md",
+               "CHANGELOG" => "CHANGELOG.md"
                ]
        )
 

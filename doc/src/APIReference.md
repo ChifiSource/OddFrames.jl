@@ -16,12 +16,12 @@ OddFrame
 #### ImmutableOddFrame
 - Sub-type of AbstractOddFrame
 ```@docs
-Array{Pair}(::AbstractOddFrame)
+ImmutableOddFrame
 ```
 ### Casts
-####
+- Sub-type of AbstractOddFrame
 ```@docs
-OddFrame
+Array{Pair}(::AbstractOddFrame)
 ```
 ## From OddFrames
 
@@ -31,6 +31,7 @@ OddFrame
 
 ### Grouping
 #### FrameGroup
+##### FrameGroup Constructors
 ### Indexing and Iteration
 
 ### Linear Algebra
