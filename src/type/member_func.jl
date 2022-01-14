@@ -1,46 +1,104 @@
 include("supporting.jl")
-function _typefs(labels::Vector{Symbol}, columns::AbstractVector, types::AbstractVector)
+function member_immutables(labels::Vector{Symbol},
+         columns::AbstractVector, types::AbstractVector)
         # Non-mutating
-        # Head
+        # head
         head(x::Int64; html = :show) = _head(labels, columns, types, x,
         html = html)
         head() = _head(labels, columns, types, 5)
-#        Dtype
+        # dtype
         dtype(x::Symbol) = typeof(types[findall(x->x == x,
                                 labels)[1]][1])
+        # not
+        not(ls::Symbol ...) = _not(ls, labels, columns)
+        not(ls::UnitRange ...) = _not(ls, labels, columns)
+        not(ls::Int64 ...) = _not(ls, labels, columns)
+        # only
+        only(ls::Symbol ...) = _only(ls, labels, columns)
+        only(ls::UnitRange ...) = _only(ls, labels, columns)
+        only(ls::Int64 ...) = _only(ls, labels, columns)
+        return(head, dtype, not, only)
+end
+
+function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
+        types::AbstractVector)
         # Mutating
-        # Drop
+        # drop!
         drop!(x) = _drop!(x, columns)
         drop!(x::Symbol) = _drop!(x, labels, columns, types)
         drop!(x::String) = _drop!(Symbol(x), labels, columns, types)
-        # Dropna
+        # dropna!
         dropna!() = _dropna!(columns)
-
+        # dtype!
         dtype!(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
                                 labels)[1]], y)
-        # Merge
-        merge!(od::OddFrame; at::Any = 0) = _merge!(labels, types,
+        # merge!
+        merge!(od::OddFrame; at::Any = 1) = _merge!(labels, types,
                                 columns, od, at)
-        merge!(x::Array; at::Any = 0) = _merge!(labels, types,
+        merge!(x::Array; at::Any = 1) = _merge!(labels, types,
                                 columns, x, at)
-        return(head, drop!, dropna!, dtype, dtype!, merge!)
+        # only!
+        only!(ls::Symbol ...) = _only!(ls, labels, columns, types)
+        only!(ls::UnitRange ...) = _only!(ls, labels, columns, types)
+        only!(ls::Int64 ...) = _only!(ls, labels, columns, types)
+        return(drop!, dropna!, dtype!, merge!, only!)
+end
+#==
+_not()
+==#
+function _not(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
+        mask = [val ! in i for i in labels]
+        nlabels = labels[mask]
+        ncols = columns[mask]
+        return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
+end
+function _not(i::Tuple{Int64}, labels::Vector{Symbol}, columns::AbstractArray)
+        mask = [z ! in i for z in 1:length(labels)]
+        nlabels = labels[mask]
+        ncols = columns[mask]
+        return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
+end
+function _not(ranges::Tuple{UnitRange}, labels::Vector{Symbol},
+        columns::AbstractArray)
+        badindexes = []
+        for range in ranges
+                badindexes = vcat(badindexes, Array(range))
+        end
+        __not(Tuple(badindexes))
+end
+
+#==
+_only()
+==#
+function _only(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
+        mask = [val in i for i in labels]
+        nlabels = labels[mask]
+        ncols = columns[mask]
+        return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
+end
+#==
+_only!()
+==#
+function _only!(i::Tuple{Symbol}, labels::Vector{Symbol},
+         columns::AbstractArray, types::Vector{Type})
+        mask = [label in i for label in labels]
+        columns = _drop!(mask, labels, columns, types)
 end
 
 #==
 Child
     methods
     ==#
-function _texthead(labels::AbstractVector, columns::AbstractVector,
+function _txthead(labels::AbstractVector, columns::AbstractVector,
         count::Int64, coldata::AbstractVector{Pair})
         println("Text version of head not written yet...")
 end
 function _head(labels::AbstractVector,
         columns::AbstractVector, types::AbstractVector, count::Int64;
         html = :show)
-
         coldata = generate_coldata(columns, types)
         if html == :none
-                return(_head(labels, columns, count, coldata))
+                return(_txthead(labels, columns, count, coldata))
         end
         # Create t-header and t-body tags
         thead = "<thead><tr>"
@@ -83,7 +141,10 @@ function _drop!(column::Symbol, labels::Array{Symbol}, columns::Array,
         deleteat!(types, pos)
         deleteat!(columns, pos)
 end
-
+function  _drop!(mask::BitArray, labels::Vector{Symbol},
+         columns::AbstractArray, types::AbstractArray)
+        pos = findall(x->x==0, mask)
+end
 function _drop!(row::Int64, columns::Array)
         [deleteat!(col, row) for col in columns]
 end
@@ -131,4 +192,16 @@ function _merge!(labels::Vector{Symbol}, types::AbstractVector,
         push!(labels, Symbol(at), at = at)
         push!(columns, x, at = at)
         push!(types, typeof(x[1]), at = at)
+end
+
+function _fill!(f::Function, labels::Symbol ...)
+
+end
+
+function _fill!(f::Function, labels::Symbol ...)
+
+end
+
+function _fillna!(f::Function)
+
 end
