@@ -199,16 +199,20 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 types = [typeof(x[1]) for x in columns]
                 return(OddFrame(labels, columns, types))
         end
-        function OddFrame(file_path::String;
-                fextensions::Pair{String, Function} = [])
-                extensions = ["csv" => read_csv]
-                [push!(extensions, fext) for fext in fextensions]
-                extensions = OddFrame(extensions)
-                extension = split(file_path, '.')[2]
-                labels, columns = extensions[extension](file_path)
+        function OddFrame(file_path::String)
+                extensions = Dict("csv" => read_csv)
+                extension = split(file_path, '.')
+                println("tried 1")
+                ext = extension[2]
+                println(ext)
+                println("tried 2")
+                labels, columns = extensions[ext](file_path)
+                println("tried 3")
                 length_check(columns)
                 name_check(labels)
+                println("tried 4")
                 types, columns = read_types(columns)
+                println("tried 5")
                 return(OddFrame(labels, columns, types))
         end
         function OddFrame(p::AbstractArray)

@@ -196,14 +196,7 @@ function _merge!(labels::Vector{Symbol}, types::AbstractVector,
         push!(types, typeof(x[1]), at = at)
 end
 
-function _fill!(f::Function, labels::Symbol ...)
 
-end
-
-function _fill!(f::Function, labels::Symbol ...)
-
-end
-
-function _fillna!(f::Function)
+function _fill(f::Function)
 
 end
