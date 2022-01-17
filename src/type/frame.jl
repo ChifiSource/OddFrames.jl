@@ -194,7 +194,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 drop!, dtype!, merge!, only! = member_mutables(labels,
                 columns, types)
                 return(new(labels, columns, types, head, dtype, not, only, drop!,
-                dropna!, dtype!, merge!, only!))
+                dtype!, merge!, only!))
         end
         """
         - **Core**
