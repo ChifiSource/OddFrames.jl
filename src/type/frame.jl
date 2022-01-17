@@ -163,7 +163,6 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         not::Function
         only::Function
         drop!::Function
-        dropna!::Function
         dtype!::Function
         merge!::Function
         only!::Function
@@ -188,9 +187,11 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         """
         function OddFrame(labels::Vector{Symbol}, columns::Any,
                 types::AbstractArray)
+                length_check(columns)
+                name_check(labels)
                 head, dtype, not, only = member_immutables(labels, columns,
                                                                 types)
-                drop!, dropna!, dtype!, merge!, only! = member_mutables(labels,
+                drop!, dtype!, merge!, only! = member_mutables(labels,
                 columns, types)
                 return(new(labels, columns, types, head, dtype, not, only, drop!,
                 dropna!, dtype!, merge!, only!))
@@ -208,9 +209,9 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         ```
         """
         function OddFrame()
-                labels = Array{Symbol}()
-                types = Array{Type}
-                columns = Array{Any}()
+                labels = Array{Symbol}([])
+                types = Array{Type}([])
+                columns = Array{Any}([])
                 return(OddFrame(labels, columns, types))
         end
         """
@@ -227,8 +228,6 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         """
         function OddFrame(p::Pair ...)
                 labels, columns = ikeys(p), ivalues(p)
-                length_check(columns)
-                name_check(labels)
                 types = [typeof(x[1]) for x in columns]
                 return(OddFrame(labels, columns, types))
         end
@@ -246,13 +245,13 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         ```
         """
         function OddFrame(file_path::String)
-                extensions = Dict("csv" => read_csv)
+                fextensions = Dict("csv" => read_csv)
                 extension = split(file_path, '.')
                 println("tried 1")
                 ext = extension[2]
                 println(ext)
                 println("tried 2")
-                labels, columns = extensions[ext](file_path)
+                labels, columns = fextensions[ext](file_path)
                 println("tried 3")
                 length_check(columns)
                 name_check(labels)
