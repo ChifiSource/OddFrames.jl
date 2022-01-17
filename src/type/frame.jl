@@ -7,13 +7,17 @@ OddFrame Type
 """
 - **Core**
 - Frames
-# OddFrame(::AbstractVector{Symbol}, ::AbstractVector{Any},
+## OddFrame(::AbstractVector{Symbol}, ::AbstractVector{Any},
 ::Array{DataType}, ::Function, ::Function, ::Function, ::Function, ::Function,
-::Function, ::Function, ::Function, ::Function)
-The OddFrame type is the **mutable** form of data storage in OddFrames.jl. This
-structure should not be called directly. If you want to create this type,
-you should be looking at the constructors, listed below, not this documentation.
-### Properties
+::Function, ::Function, ::Function, ::Function) -> OddFrame
+OddFrame outer constructor, not meant to be called directly.
+#### Constructors
+- **super** OddFrame(labels::Vector{Symbol}, columns::Any, types::AbstractArray))
+- OddFrame()
+- OddFrame(p::Pair ...)
+- OddFrame(file_path::String)
+- OddFrame(p::AbstractArray)
+#### Properties
 - labels::AbstractVector{Symbol} => A vector of names that correspond to each
 column on the OddFrame.
 - columns::Vector{Any} => A vector of 1-D vectors for each feature in the OddFrame.
@@ -27,7 +31,7 @@ column on the OddFrame.
 - dtype!::Function => Binded call to _dtype!
 - merge!::Function => Binded call to _merge!
 - only!::Function => Binded call to _only!
-## Bindings
+#### Bindings
 These are the bindings for all the methods stored in this type. An important
         note is that methods ending with ! will mutate the OddFrame, whereas
         methods that do not contain this are consistent to Immutables.
@@ -100,21 +104,6 @@ columns(od)
 
 [5, 10, 15]
 ```
-
-#### OddFrame.dropna!() => _dropna!
-Removes missing, null, and n/a values from the OddFrame by dropping observations.
- If you want to do this, but keep your observations, see fill!() and fillna!()
-##### return
-Mutates the OddFrame.
-#### example
-```
-od = OddFrame(:A => [5, missing, 15], :B => [1, 2, 3])
-od.dropna!(:B)
-columns(od)
-
-[[5, 15], [1, 3]]
-```
-
 #### OddFrame.dtype!(x::Symbol, y::Type) => _dtype!
 Sets the data-type of a column specified with type **y** casted onto array **x**
 .
@@ -150,7 +139,7 @@ columns(od)
 [:A => [5, 10, 15], :B => [1, 2, 3]]
 ```
 
-#### OddFrame.only!(ls::Symbol, UnitRange, Int64 ...) => _merge!
+#### OddFrame.only!(ls::Symbol, UnitRange, Int64 ...) -> _only!
 Removes all columns in OddFrame besides the ones specified.
 - **posarg[1]** ls::Symbol, UnitRange, Int64 ... => ls should be values provided
 as arguments representing the label, axis, or axis range at which to index.
@@ -164,8 +153,6 @@ columns(od)
 
 [:A => [5, 10, 15]]
 ```
-## Constructors
-Here are the various constructors which return this type.
 """
 mutable struct OddFrame <: AbstractMutableOddFrame
         labels::Array{Symbol}
@@ -183,8 +170,24 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         #==
         Constructors
         ==#
+        #==
+        Super Constructor
+        ==#
+        """
+        - **Core**
+        - Frames
+        #### OddFrame(labels::Symbol, columns::Any, types::AbstractArray)
+        **Super** constructor for OddFrame. Should not be called directly. Is
+        called by other constructors.
+        ##### return
+        - **[1]** ::OddFrame
+        #### example
+        ```
+        od = OddFrame(labels, columns, types)
+        ```
+        """
         function OddFrame(labels::Vector{Symbol}, columns::Any,
-                types::Vector{DataType})
+                types::AbstractArray)
                 head, dtype, not, only = member_immutables(labels, columns,
                                                                 types)
                 drop!, dropna!, dtype!, merge!, only! = member_mutables(labels,
@@ -192,6 +195,36 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 return(new(labels, columns, types, head, dtype, not, only, drop!,
                 dropna!, dtype!, merge!, only!))
         end
+        """
+        - **Core**
+        - Frames
+        #### OddFrame()
+        Creates an OddFrame
+        ##### return
+        - **[1]** ::OddFrame
+        #### example
+        ```
+        od = OddFrame()
+        ```
+        """
+        function OddFrame()
+                labels = Array{Symbol}()
+                types = Array{Type}
+                columns = Array{Any}()
+                return(OddFrame(labels, columns, types))
+        end
+        """
+        - **Core**
+        - Frames
+        #### OddFrame(p::Pair ...)
+        Creates an OddFrame where the keys of p are labels, values are columns.
+        ##### return
+        - **[1]** ::OddFrame
+        #### example
+        ```
+        od = OddFrame(:A => [5, 10, 15], :B => [5, 10, 15])
+        ```
+        """
         function OddFrame(p::Pair ...)
                 labels, columns = ikeys(p), ivalues(p)
                 length_check(columns)
@@ -199,6 +232,19 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 types = [typeof(x[1]) for x in columns]
                 return(OddFrame(labels, columns, types))
         end
+        """
+        - **Core**
+        - Frames
+        #### OddFrame(file_path::String)
+        Creates an OddFrame from a file path. Uses the file extension, e.g. .csv
+        to determine format reader. To avoid this, use read(::String, ::Symbol).
+        ##### return
+        - **[1]** ::OddFrame
+        #### example
+        ```
+        od = OddFrame("example.csv")
+        ```
+        """
         function OddFrame(file_path::String)
                 extensions = Dict("csv" => read_csv)
                 extension = split(file_path, '.')
@@ -215,6 +261,18 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 println("tried 5")
                 return(OddFrame(labels, columns, types))
         end
+        """
+        - **Core**
+        - Frames
+        #### OddFrame(p::AbstractArray)
+        Creates an OddFrame from an array of pairs.
+        ##### return
+        - **[1]** ::OddFrame
+        #### example
+        ```
+        od = OddFrame([:A => [5, 10], :B => [5, 10]])
+        ```
+        """
         function OddFrame(p::AbstractArray)
                 # Labels/Columns
                 labels, columns = ikeys(p), ivalues(p)
@@ -223,6 +281,18 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 types = [typeof(x[1]) for x in columns]
                 return(OddFrame(labels, columns, types))
         end
+        """
+        - **Core**
+        - Frames
+        #### OddFrame(d::Dict)
+        Creates an OddFrame from a dictionary
+        ##### return
+        - **[1]** ::OddFrame
+        #### example
+        ```
+        od = OddFrame(Dict(:A => [5, 10], :B => [5, 10]))
+        ```
+        """
         function OddFrame(d::Dict)
                 return(OddFrame([p => v for (p, v) in d]))
         end
@@ -299,8 +369,6 @@ we will get a return of a new OddFrame that does not include any other values.
 od = ImmutableOddFrame(:A => [5, 10, 15], :B => [1, 2, 3])
 justb = od.only(:B)
 ```
-## Constructors
-Here are the various constructors which return this type.
 """
 struct ImmutableOddFrame <: AbstractOddFrame
         labels::Tuple{Symbol}
@@ -313,13 +381,36 @@ struct ImmutableOddFrame <: AbstractOddFrame
     #==
     Constructors
     ==#
+    """
+    - **Core**
+    - Frames
+    #### ImmutableOddFrame(file_path::String)
+    **Super Constructor** for ImmutableOddFrame, called in all other constructors.
+    ##### return
+    - **[1]** ::ImmutableOddFrame
+    #### example
+    ```
+    od = ImmutableOddFrame(labels, columns, types)
+    ```
+    """
     function ImmutableOddFrame(labels::Tuple{Symbol}, columns::Any,
-            types::Tuple{DataType})
+            types::Any)
             head, dtype, not, only = member_immutables(labels, columns,
                                                             types)
             return(new(labels, columns, types, head, dtype, not, only))
     end
-
+    """
+    - **Core**
+    - Frames
+    #### ImmutableOddFrame(file_path::String)
+    **Super Constructor** for ImmutableOddFrame, called in all other constructors.
+    ##### return
+    - **[1]** ::ImmutableOddFrame
+    #### example
+    ```
+    od = ImmutableOddFrame(labels, columns, types)
+    ```
+    """
     function ImmutableOddFrame(p::Pair ...)
             labels, columns = Tuple(ikeys(p)), Tuple(ivalues(p))
             length_check(columns)
@@ -327,18 +418,52 @@ struct ImmutableOddFrame <: AbstractOddFrame
             types = Tuple([typeof(x[1]) for x in columns])
             return(ImmutableOddFrame(labels, columns, types))
     end
-
-    function ImmutableOddFrame(p::AbstractVector{Pair})
+    """
+    - **Core**
+    - Frames
+    #### ImmutableOddFrame(p::AbsttractArray)
+    Constructs an array from the pairs in **p**
+    ##### return
+    - **[1]** ::ImmutableOddFrame
+    #### example
+    ```
+    od = ImmutableOddFrame(labels, columns, types)
+    ```
+    """
+    function ImmutableOddFrame(p::AbstractArray)
             labels, columns = Tuple(ikeys(p)), Tuple(ivalues(p))
             length_check(columns)
             name_check(labels)
             types = Tuple([typeof(x[1]) for x in columns])
             return(ImmutableOddFrame(labels, columns, types))
     end
-    ImmutableOddFrame(file_path::String;
-    fextensions::Pair{String, Function} = []) = immutablecopy(OddFrame(file_path,
-    fextensions = fextensions)
-    )
+    """
+    - **Core**
+    - Frames
+    #### ImmutableOddFrame(p::AbsttractArray)
+    Constructs an array from the pairs in **p**
+    ##### return
+    - **[1]** ::ImmutableOddFrame
+    #### example
+    ```
+    od = ImmutableOddFrame(labels, columns, types)
+    ```
+    """
+    function ImmutableOddFrame(file_path::String)
+            immutablecopy(OddFrame(file_path))
+    end
+    """
+    - **Core**
+    - Frames
+    #### ImmutableOddFrame(d::Dict)
+    Constructs an array from dictionary **d**.
+    ##### return
+    - **[1]** ::ImmutableOddFrame
+    #### example
+    ```
+    od = ImmutableOddFrame(labels, columns, types)
+    ```
+    """
     ImmutableOddFrame(d::Dict) = immutablecopy(OddFrame(d))
 end
 
