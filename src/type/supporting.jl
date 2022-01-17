@@ -33,7 +33,9 @@ function length_check(ps)
 end
 
 function name_check(labels)
+        println(Set(labels))
         if length(Set(labels)) != length(labels)
-        throw(ErrorException("Column names may not be duplicated!"))
+                throw(ErrorException("Column names may not be duplicated!"))
+                println(Set(labels))
         end
 end
