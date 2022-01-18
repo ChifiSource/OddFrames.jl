@@ -113,9 +113,8 @@ end
 """
 - **From OddFrames**
 - Base Tools
-### map!(array::AbstractArray, f::Function)
-Maps a function to an iterable array. In this case, the special thing here is
-        that it will mutate the provided **array**, not copy it.
+### appl!(array::AbstractArray, f::Function)
+Applies a function to an iterable array.
 - **posarg[1]** array::AbstractArray => The array we would like to apply
 the function **f** to.
 - **posarg[2]** f::Function => The function we wish to apply to **array**.
@@ -129,5 +128,9 @@ array
 [10, 15, 20]
 ```
 """
-map!(array::AbstractArray,
+apply(array::AbstractArray,
  f::Function) = [array[c] = f(x) for (c, x) in enumerate(array)]
+ 
+function apply!(array::AbstractArray, f::Function)
+
+end

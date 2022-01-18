@@ -28,6 +28,14 @@ function nothing()
         return nothing
 end
 
+function na(x::Any)
+    if ismissing(x)
+        return(true)
+    else
+        return(false)
+    end
+end
+
 function zeros()
         return(0)
 end
