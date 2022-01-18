@@ -247,17 +247,11 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         function OddFrame(file_path::String)
                 fextensions = Dict("csv" => read_csv)
                 extension = split(file_path, '.')
-                println("tried 1")
                 ext = extension[2]
-                println(ext)
-                println("tried 2")
                 labels, columns = fextensions[ext](file_path)
-                println("tried 3")
                 length_check(columns)
                 name_check(labels)
-                println("tried 4")
                 types, columns = read_types(columns)
-                println("tried 5")
                 return(OddFrame(labels, columns, types))
         end
         """
@@ -392,8 +386,8 @@ struct ImmutableOddFrame <: AbstractOddFrame
     od = ImmutableOddFrame(labels, columns, types)
     ```
     """
-    function ImmutableOddFrame(labels::Tuple{Symbol}, columns::Any,
-            types::Any)
+    function ImmutableOddFrame(labels::Tuple, columns::Tuple,
+            types::Tuple)
             head, dtype, not, only = member_immutables(labels, columns,
                                                             types)
             return(new(labels, columns, types, head, dtype, not, only))
