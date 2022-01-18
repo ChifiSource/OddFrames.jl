@@ -1,3 +1,10 @@
+function naparse(T::Type, val::Any)
+    if ismissing(val)
+        return(missing)
+    else
+        return(parse(T, val))
+    end
+end
 function read_csv(csv_path::String)
     readstr = open(f->read(f, String), csv_path, "r")
     rows = split(readstr, '\n')
@@ -8,7 +15,11 @@ function read_csv(csv_path::String)
     for row in rows
         data = (split(row, ','))
         for col in 1:length(columns)
-            push!(values[col], data[col])
+            try
+                push!(values[col], data[col])
+            catch
+                push!(values[col], missing)
+            end
         end
     end
     return(columns, values)
@@ -22,26 +33,25 @@ function read_types(columns)
             parse(Bool, col[2])
             push!(types, Bool)
         catch
-        try
-            parse(Int64, col[1])
-            parse(Int64, col[2])
-            push!(types, Float64)
-        catch
             try
-                parse(Float64, col[1])
-                parse(Float64, col[2])
-                push!(types, Int64)
+                parse(Int64, col[1])
+                parse(Int64, col[2])
+                push!(types, Float64)
             catch
-                push!(types, String)
-            end
+                try
+                    parse(Float64, col[1])
+                    parse(Float64, col[2])
+                    push!(types, Int64)
+                catch
+                    push!(types, String)
+                end
             end
         end
     end
     newcolumns = []
     for (n, col) in enumerate(columns)
         if types[n] != String
-            push!(newcolumns, [parse(types[n], val) for val in col])
-
+            push!(newcolumns, [naparse(types[n], val) for val in col])
         else
             push!(newcolumns, col)
         end

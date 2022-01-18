@@ -267,25 +267,6 @@ end
 """
 - **Interface**
 - Methods
-### fill(od::AbstractOddFrame, f::Function,
-        labels::Symbol, Int64, String, UnitRange ... = names(od))
-- **posarg[1]** od::AbstractOddFrame => The OddFrame we wish to fill.
-- **posarg[2]** f::Function => The function to apply to the OddFrame.
-- **posarg[3]** labels ::Symbol, Int64, String, UnitRange ... => The labels on
-our OddFrame we wish to fill. Leave none for all.
-##### return
-not written yet
-##### example
-```
-not written yet.
-```
-"""
-function fill(od::AbstractOddFrame, f::Function, labels::Any ... = names(od))
-
-end
-"""
-- **Interface**
-- Methods
 ### pivot!(od::AbstractOddFrame, od2::AbstractOddFrame; at::Int64, Symbol = 1)
 Pivots an OddFrame, **od**, based on the label provided in **at**.
 - **posarg[1]** od::AbstractOddFrame => The OddFrame we wish to pivot.
@@ -341,8 +322,6 @@ function delete!(od::AbstractMutableOddFrame)
         od.drop!(name)
     end
     _deletefuncs!(od)
-    od = nothing
-    return
 end
 """
 - **Developer API**

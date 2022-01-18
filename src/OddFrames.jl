@@ -136,23 +136,23 @@ abstract type AbstractMutableOddFrame <: AbstractOddFrame end
 # Deps :
 import Base: show, size, length, +, merge, delete!, copy, deepcopy, Matrix
 import Base: push!, getindex, setindex!
-
 using Base: parse
+
 using Dates
 # Includes/Exports :
 export OddFrameContainer, AbstractOddFrame, AbstractMutableOddFrame
 include("type/frame.jl")
 export OddFrame, ImmutableOddFrame
+export parse
 include("interface/grouping.jl")
 export FrameGroup
 include("interface/index_iter.jl")
 export frames, columns, labels, names
-export Array{Pair}
 include("interface/methods.jl")
 export width, show, axis
 export mutablecopy, immutablecopy, copy, deepcopy
 export merge
-export delete!, pivot!, apply!
+export delete!, pivot!, apply!, apply
 include("interface/linalg.jl")
 export shape, size, length
 include("type/casts.jl")

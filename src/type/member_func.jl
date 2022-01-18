@@ -1,4 +1,23 @@
 include("supporting.jl")
+"""
+- **Developer API**
+- Member Functions
+### member_immutables(labels::Vector{Symbol}, columns::AbstractVector,
+types::AbstractVector)
+Returns the non-mutating functions for an AbstractOddFrame.
+- **posarg[1]** labels::Vector{Symbol} -> The OddFrame's labels.
+- **posarg[2]** labels::Vector{Symbol} -> The OddFrame's columns.
+- **posarg[3]** labels::Vector{Symbol} -> The OddFrame's types.
+##### return
+- **[1]** ::Function -> The head function.
+- **[2]** ::Function -> dtype function.
+- **[3]** ::Function -> The not function.
+- **[4]** ::Function -> The only function.
+##### example
+```
+head, dtype, not, only = member_immutables(labels, columns, types)
+```
+"""
 function member_immutables(labels::Vector{Symbol},
          columns::AbstractVector, types::AbstractVector)
         # Non-mutating
@@ -19,7 +38,25 @@ function member_immutables(labels::Vector{Symbol},
         only(ls::Int64 ...) = _only(ls, labels, columns)
         return(head, dtype, not, only)
 end
-
+"""
+- **Developer API**
+- Member Functions
+### member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
+types::AbstractVector)
+Returns the mutating functions for an AbstractMutableOddFrame.
+- **posarg[1]** labels::Vector{Symbol} -> The OddFrame's labels.
+- **posarg[2]** labels::Vector{Symbol} -> The OddFrame's columns.
+- **posarg[3]** labels::Vector{Symbol} -> The OddFrame's types.
+##### return
+- **[1]** ::Function -> The drop! function
+- **[2]** ::Function -> The dtype! function.
+- **[3]** ::Function -> The merge! function.
+- **[4]** ::Function -> The only! function.
+##### example
+```
+drop!, dtype!, merge!, only! = member_mutables(labels, columns, types)
+```
+"""
 function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         types::AbstractVector)
         # Mutating
@@ -27,10 +64,8 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         drop!(x) = _drop!(x, columns)
         drop!(x::Symbol) = _drop!(x, labels, columns, types)
         drop!(x::String) = _drop!(Symbol(x), labels, columns, types)
-        # dropna!
-        dropna!() = _dropna!(columns)
         # dtype!
-        dtype!(x::Symbol, y::Type) = _dtype(columns[findall(x->x == x,
+        dtype!(x::Symbol, y::Type) = _dtype!(columns[findall(x->x == x,
                                 labels)[1]], y)
         # merge!
         merge!(od::OddFrame; at::Any = 1) = _merge!(labels, types,
@@ -41,19 +76,34 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         only!(ls::Symbol ...) = _only!(ls, labels, columns, types)
         only!(ls::UnitRange ...) = _only!(ls, labels, columns, types)
         only!(ls::Int64 ...) = _only!(ls, labels, columns, types)
-        return(drop!, dropna!, dtype!, merge!, only!)
+        return(drop!, dtype!, merge!, only!)
 end
 #==
 _not()
 ==#
+"""
+- **Developer API**
+- Member Functions
+### _not()
+Returns the non-mutating functions for an AbstractOddFrame.
+- **posarg[1]** labels::Vector{Symbol} -> The OddFrame's labels.
+- **posarg[2]** labels::Vector{Symbol} -> The OddFrame's columns.
+- **posarg[3]** labels::Vector{Symbol} -> The OddFrame's types.
+##### return
+- **[1]** ::OddFrame
+##### example
+```
+head, dtype, not, only = member_immutables(labels, columns, types)
+```
+"""
 function _not(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
-        mask = [val ! in i for i in labels]
+        mask = [! (val in i) for val in labels]
         nlabels = labels[mask]
         ncols = columns[mask]
         return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
 end
 function _not(i::Tuple{Int64}, labels::Vector{Symbol}, columns::AbstractArray)
-        mask = [z ! in i for z in 1:length(labels)]
+        mask = [! (z in i) for z in 1:length(labels)]
         nlabels = labels[mask]
         ncols = columns[mask]
         return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
@@ -71,7 +121,7 @@ end
 _only()
 ==#
 function _only(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
-        mask = [val in i for i in labels]
+        mask = [val in i for val in labels]
         nlabels = labels[mask]
         ncols = columns[mask]
         return(OddFrame([label => col for (label, col) in zip(nlabels, ncols)]))
@@ -144,21 +194,11 @@ end
 function  _drop!(mask::BitArray, labels::Vector{Symbol},
          columns::AbstractArray, types::AbstractArray)
         pos = findall(x->x==0, mask)
+        _drop(pos, column, labels, types)
 end
-function _drop!(row::Int64, columns::Array)
+function _drop!(row::Int64, columns::Array, labels::Vector{Symbol},
+        types::Array{Type})
         [deleteat!(col, row) for col in columns]
-end
-
-function _drop!(row::Array, columns::Array)
-        [deleteat!(col, row) for col in columns]
-end
-
-function _dropna!(columns::Array)
-        for col in columns
-                mask = [ismissing(x) for x in col]
-                pos = findall(x->x==1, mask)
-                _drop!(pos, columns)
-        end
 end
 
 function _dtype!(column, y)
@@ -194,14 +234,7 @@ function _merge!(labels::Vector{Symbol}, types::AbstractVector,
         push!(types, typeof(x[1]), at = at)
 end
 
-function _fill!(f::Function, labels::Symbol ...)
 
-end
-
-function _fill!(f::Function, labels::Symbol ...)
-
-end
-
-function _fillna!(f::Function)
+function _fill(f::Function)
 
 end

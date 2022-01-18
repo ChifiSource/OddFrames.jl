@@ -1,5 +1,5 @@
-
 mean(x) = sum(x) / length(x)
+
 axis(labels::Vector{Symbol}, col::Symbol) = findall(x->x==col, labels)[1]
 function generate_coldata(columns::Array, types::Array)
         pairs = []
@@ -33,7 +33,9 @@ function length_check(ps)
 end
 
 function name_check(labels)
+        println(Set(labels))
         if length(Set(labels)) != length(labels)
-        throw(ErrorException("Column names may not be duplicated!"))
+                throw(ErrorException("Column names may not be duplicated!"))
+                println(Set(labels))
         end
 end
