@@ -15,6 +15,7 @@
 - Frame Grouping - A high-level grouping interface so you can interact with more than one OddFrame at the same time.
 - Included IO - Input and output reading is included, and can easily be extended.
 - Enhanced display output, feature descriptions.
+- ML OddFrames - OddFrames that use ML to calculate data in a lazy fashion (only when it is needed!)
 # Release Version
 The next release version will be 0.1.0, with the release of OddFrames Basil.
 ```julia
@@ -50,4 +51,4 @@ A key focus of OddFrames.jl is keeping memory usage low while still allowing for
  ### Modern Data Science
 I think that all UI components, especially for something like a table, should always be at least moderately tasteful in appearance. I want information on my data, but I do not want my data to scream about itself into my ear. I understand these concepts, therefore my design is geared towards such a thing. There are so many DataFrames packages that just do not at all have support for image-dataframes, which is ridiculously common now.
 ### BIG Data
-In terms of memory efficiency, OddFrames typically take up the same amount of memory as a DataFrame from DataFrames.jl
+In terms of memory efficiency, OddFrames typically take up the same amount of memory as a DataFrame from DataFrames.jl. However, where things become different is with the MLOddFrame and AlgebraicOddFrame types respectively. These two types allow one to create an OddFrame from both models and algebraic expressions.
