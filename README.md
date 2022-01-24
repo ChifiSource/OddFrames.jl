@@ -5,7 +5,16 @@
  </div>
  
  
-  **OddFrames.jl** is a new package for managing your data in Julia. Light enough to be a dependency on any project, yet rich enough to get the job done. OddFrames.jl is a selectively object-oriented data-management framework for manipulating, scaling, automating, and building data for scientific use. Some key features of OddFrames are functional indexing of both rows and columns, object-oriented core types with member function calls. A significant separation between mutability and immutability. A focus on big-data, and generating " lazy" types that are a lot easier to manage with memory. That being said, the package is both declarative and imperative, there are hardware aspects that you can work with to try and get more out of your OddFrame, although really they are type mutations, clearing out hardware. Still, things like this are not often found
+  **OddFrames.jl** is a new package for managing your data in Julia. Light enough to be a dependency on any project, yet rich enough to get the job done. OddFrames.jl is a selectively object-oriented data-management framework for manipulating, scaling, automating, and building data for scientific use. What makes OddFrames.jl unique, and why not just use the wonderfully robust [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl)? Good question. Although DataFrames.jl is a great, and more mature data-management interface, the goals of the package is inheritly different to the goals of this package. We start at the same base, in-memory tabular data, but looking at both methodology and features, things quickly change. As such, in some cases, DataFrames.jl may be the better tool for the job, and if this happens to be your first time using Julia, I would recommend learning DataFrames.jl **first**, though that certainly is not necessary. OddFrames.jl comes with the following special features, unlike DataFrames.jl:
+- A multi-paradigm approach - DataFrames.jl mostly uses only multiple dispatch for handling operations with its types, we are in Julia afterall. OddFrames.jl uses some object-oriented syntax, some functional syntax, and some expression syntax.
+- A core focus on mutability - Immutable and mutable types, as well as mutating and non-mutating methods, with clear distinctions between the two.
+- Extendability - OddFrames makes it super easy to load and use extensions that might provide more functionality and capabilities.
+- A significant effort for faster precompilation.
+- Algebraic data - Data that can be modified via expressions and computed all in one go. This has a dramatic impact on memory.
+- Linear algebra - More robust support for all the linear algebra calls that are provided by Julia, dispatched to the OddFrame types.
+- Frame Grouping - A high-level grouping interface so you can interact with more than one OddFrame at the same time.
+- Included IO - Input and output reading is included, and can easily be extended.
+- Enhanced display output, feature descriptions.
 # Release Version
 The next release version will be 0.1.0, with the release of OddFrames Basil.
 ```julia
