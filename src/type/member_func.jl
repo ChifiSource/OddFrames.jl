@@ -36,6 +36,7 @@ function member_immutables(labels::Vector{Symbol},
         only(ls::Symbol ...) = _only(ls, labels, columns)
         only(ls::UnitRange ...) = _only(ls, labels, columns)
         only(ls::Int64 ...) = _only(ls, labels, columns)
+        apply(f::Function) = apply(f, labels, columns)
         describe() = _describe(labels, columns)
         describe(col::Symbol) = _describe(symb, labels, columns)
         return(head, dtype, not, only, describe)
@@ -76,11 +77,16 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
                                 columns, od, at)
         merge!(x::Array; at::Any = 1) = _merge!(labels, types,
                                 columns, x, at)
+        # apply!
+        apply!(f::Function; at = 1:length(labels)) = apply!(f, labels, columns,
+                                                          types, at = at)
         # only!
         only!(ls::Symbol ...) = _only!(ls, labels, columns, types)
         only!(ls::UnitRange ...) = _only!(ls, labels, columns, types)
         only!(ls::Int64 ...) = _only!(ls, labels, columns, types)
-        return(drop!, dtype!, merge!, only!)
+        # fill!
+        fill!(f::Function) = fill!(f, labels, columns, types)
+        return(drop!, dtype!, merge!, only!, apply!, fill!)
 end
 #==
 _not()
@@ -203,7 +209,7 @@ function _drop!(f::Function, labels::Vector{Symbol}, columns::AbstractArray,
         if length(bitarr > 1)
                 bitarr = accumuatebits(bitarr)
         end
-        _drop!(bitarr)
+        _drop!(bitarr, labels, columns, types)
 end
 function  _drop!(mask::BitArray, labels::Vector{Symbol},
          columns::AbstractArray, types::AbstractArray)
@@ -249,16 +255,21 @@ function _merge!(labels::Vector{Symbol}, types::AbstractVector,
 end
 
 
-function _fill(f::Function)
-
+function fill!(f::Function, labels::Vector{Symbol}, columns::AbstractVector,
+        types::AbstractVector; at = 1:length(labels))
+        for n in at
+                [push!(columns[n], f(obs), at = obs) for obs in 1:length(columns[1])]
+        end
 end
 
-function apply()
-
+function apply(f::Function, labels::Vector{Symbol}, columns::AbstractVector,
+        types::AbstractVector; at::UnitRange = 1:length(labels))
+        [apply(columns[n], f) for n in at]
 end
 
-function apply!()
-
+function apply!(f::Function, labels::Vector{Symbol}, columns::AbstractVector,
+        types::AbstractVector; at::UnitRange = 1:length(labels))
+        [apply!(columns[n], f) for n in at]
 end
 
 function describe(labels::Vector{Symbol}, columns::Vector{Any})
