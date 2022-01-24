@@ -37,7 +37,8 @@ pkg> add https://github.com/ChifiSource/OddFrames.jl.git#Unstable
   <div align = "left">
 <br>
 
-
+## Documentation
+As this package has yet to be registered, or really have a stable release (it is almost here!), there is no web-based documentation for this module. That being said, you can still head over to the doc folder and read through the available MD, or generate your own documentation site. The documentation is also just not quite complete yet, nor is the testing. All of these words will be removed after 0.1.0, and in its place will be some links to documentation :)
 ## A Julian approach to data-management 
 OddFrames.jl is a data-management framework that is exactly as the name implies -- odd. What is great about OddFrames is that they are meant to be more Julian-1-D based. This is to say, your columns and respective data is a stacked array, not treated as a matrice. The OddFrames.jl framework handles more like a mutate mix between sonmething highly declarative like DataFrames.jl with method calls in functional style, but then also having some of the class-like features of Python's Pandas mixed in. Additionally, there are some other qualities that OddFrames.jl has. Let us quickly dive into the core methodology for OddFrames.jl.
 ### Selectively object-oriented
@@ -48,3 +49,5 @@ One thing that is often annoying about working with other data-management framew
 A key focus of OddFrames.jl is keeping memory usage low while still allowing for easy transformation of data. The main reason why there is a strive to keep memory usage down is because OddFrames.jl has a focus on immutability. This is not so much in the traditional sense, where you might need to work around immutability in order to get things done. The difference here is that OddFrames is allowing the end-user to determine what data they wish to mutate and not mutate in a blatant way.
  ### Modern Data Science
 I think that all UI components, especially for something like a table, should always be at least moderately tasteful in appearance. I want information on my data, but I do not want my data to scream about itself into my ear. I understand these concepts, therefore my design is geared towards such a thing. There are so many DataFrames packages that just do not at all have support for image-dataframes, which is ridiculously common now.
+### BIG Data
+In terms of memory efficiency, OddFrames typically take up the same amount of memory as a DataFrame from DataFrames.jl
