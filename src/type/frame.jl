@@ -463,7 +463,7 @@ end
 
 mutable struct AlgebraicOddFrame <: AbstractMutableOddFrame
         labels::AlgebraicArray{Symbol}
-        columns::AlgebraicArray{Any}
+        columns::Vector{AlgebraicArray}
         types::Array{Type}
         head::Function
         dtype::Function
