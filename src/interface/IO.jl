@@ -1,3 +1,38 @@
+function read_types(columns)
+    types = []
+    for col in columns
+        try
+            parse(Bool, col[1])
+            parse(Bool, col[2])
+            push!(types, Bool)
+        catch
+            try
+                parse(Int64, col[1])
+                parse(Int64, col[2])
+                push!(types, Float64)
+            catch
+                try
+                    parse(Float64, col[1])
+                    parse(Float64, col[2])
+                    push!(types, Int64)
+                catch
+                    push!(types, String)
+                end
+            end
+        end
+    end
+    newcolumns = []
+    for (n, col) in enumerate(columns)
+        if types[n] != String
+            push!(newcolumns, [naparse(types[n], val) for val in col])
+        else
+            push!(newcolumns, col)
+        end
+
+    end
+    return(types, newcolumns)
+end
+
 """
 ## read(uri::String, T::Type) -> ::T
 High-level binding call to read any data file into T. Other calls, and possible
@@ -82,37 +117,21 @@ end
 
 
 
-function read_types(columns)
-    types = []
-    for col in columns
-        try
-            parse(Bool, col[1])
-            parse(Bool, col[2])
-            push!(types, Bool)
-        catch
-            try
-                parse(Int64, col[1])
-                parse(Int64, col[2])
-                push!(types, Float64)
-            catch
-                try
-                    parse(Float64, col[1])
-                    parse(Float64, col[2])
-                    push!(types, Int64)
-                catch
-                    push!(types, String)
-                end
-            end
-        end
-    end
-    newcolumns = []
-    for (n, col) in enumerate(columns)
-        if types[n] != String
-            push!(newcolumns, [naparse(types[n], val) for val in col])
-        else
-            push!(newcolumns, col)
-        end
+function to_csv(uri::String, od::AbstractOddFrame)
 
-    end
-    return(types, newcolumns)
+end
+function to_json(uri::String, od::AbstractOddFrame)
+
+end
+function to_xl(uri::String, od::AbstractOddFrame)
+
+end
+function to_tb(uri::String, od::AbstractOddFrame)
+
+end
+function to_fa(uri::String, od::AbstractOddFrame)
+
+end
+function to_rs(uri::String, od::AbstractOddFrame)
+
 end

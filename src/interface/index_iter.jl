@@ -176,7 +176,7 @@ od[1]
 [5, 10, 15]
 ```
 """
-getindex(od::AbstractOddFrame, axis::Int64) = od.columns[axis]
+getindex(od::AbstractOddFrame; at = axis::Int64) = od.columns[axis]
 """
 - **Interface**
 - Indexing and Iteration
@@ -194,7 +194,7 @@ od[1:2]
 [[5, 10, 15], [5, 10, 15]]
 ```
 """
-getindex(od::AbstractOddFrame, range::UnitRange) = columns(od.only())
+getindex(od::AbstractOddFrame; at = range::UnitRange) = columns(od.only(range))
 """
 - **Interface**
 - Indexing and Iteration
@@ -273,6 +273,9 @@ fg[1]
 """
 getindex(fg::OddFrameContainer, axis::Int64) = fg.ods[axis]
 
-function getindex(od::AbstractOddFrame, observation::Int64, labels::Symbol ...)
-
+function getindex(od::AbstractOddFrame, observation::Int64; at = 1)
+        od[at][observation]
+end
+function iterate(od::AbstractOddFrame)
+    ret = Iterators.partition(compute(aa), 1)
 end
