@@ -5,7 +5,7 @@
  </div>
  
  
-  **OddFrames.jl** is a new package for managing your data in Julia. Light enough to be a dependency on any project, yet rich enough to get the job done. OddFrames.jl is a selectively object-oriented software for scaling, automating, and building data for scientific use. OddFrames allows the programmer to control mutability and immutability very well, as well as work with many different types of data from within the same constructor.
+  **OddFrames.jl** is a new package for managing your data in Julia. Light enough to be a dependency on any project, yet rich enough to get the job done. OddFrames.jl is a selectively object-oriented data-management framework for manipulating, scaling, automating, and building data for scientific use. Some key features of OddFrames are functional indexing of both rows and columns, object-oriented core types with member function calls. A significant separation between mutability and immutability. A focus on big-data, and generating " lazy" types that are a lot easier to manage with memory. That being said, the package is both declarative and imperative, there are hardware aspects that you can work with to try and get more out of your OddFrame, although really they are type mutations, clearing out hardware. Still, things like this are not often found
 # Release Version
 The next release version will be 0.1.0, with the release of OddFrames Basil.
 ```julia

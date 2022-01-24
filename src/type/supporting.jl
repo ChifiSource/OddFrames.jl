@@ -1,29 +1,7 @@
 mean(x) = sum(x) / length(x)
 
 axis(labels::Vector{Symbol}, col::Symbol) = findall(x->x==col, labels)[1]
-function generate_coldata(columns::Array, types::Array)
-        pairs = []
-        for (i, T) in enumerate(types)
-                if T == String
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Categorical\n",
-                        "Categories: ", length(Set(columns[i]))))
-                elseif T == Bool
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Categorical\n",
-                        "Categories: ", length(Set(columns[i]))))
-                elseif length(columns[i]) / length(Set(columns[i])) <= 1.8
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Continuous\n", "Mean: ",
-                        mean(columns[i])))
-                else
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Categorical\n",
-                        "Categories: ", length(Set(columns[i]))))
-                end
-        end
-        pairs
-end
+
 #==
 THROWS
 ==#
@@ -38,4 +16,20 @@ function name_check(labels)
                 throw(ErrorException("Column names may not be duplicated!"))
                 println(Set(labels))
         end
+end
+function _txthead(labels::AbstractVector, columns::AbstractVector,
+        count::Int64, coldata::AbstractVector{Pair})
+        println("Text version of head not written yet...")
+end
+function accumulatebits(bits::AbstractArray{BitArray})
+        newbits = []
+        for val in enumerate(bits[1])
+                mu = mean([bit[val]] for bit in bits])
+                if mu != 1
+                        push!(newbits, 0)
+                else
+                        push!(newbits, mu)
+                end
+        end
+        newbits
 end

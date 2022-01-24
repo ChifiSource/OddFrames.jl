@@ -1,6 +1,7 @@
 include("css.jl")
-include("formats.jl")
+include("../interface/IO.jl")
 include("supporting.jl")
+include("algebraic.jl")
 #=============
 OddFrame Type
 =============#
@@ -162,10 +163,14 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         dtype::Function
         not::Function
         only::Function
+        apply::Function
+        fill::Function
+        describe::Function
         drop!::Function
         dtype!::Function
         merge!::Function
         only!::Function
+        apply!::Function
         #==
         Constructors
         ==#
@@ -214,6 +219,11 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 columns = Array{Any}([])
                 return(OddFrame(labels, columns, types))
         end
+
+        function OddFrame(columns::Vector{Symbol}, values::AbstractArray)
+                types = [typeof(column[1]) for column in values]
+                OddFrame(columns, values, types)
+        end
         """
         - **Core**
         - Frames
@@ -245,14 +255,7 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         ```
         """
         function OddFrame(file_path::String)
-                fextensions = Dict("csv" => read_csv)
-                extension = split(file_path, '.')
-                ext = extension[2]
-                labels, columns = fextensions[ext](file_path)
-                length_check(columns)
-                name_check(labels)
-                types, columns = read_types(columns)
-                return(OddFrame(labels, columns, types))
+                read(file_path, OddFrame)
         end
         """
         - **Core**
@@ -448,10 +451,8 @@ struct ImmutableOddFrame <: AbstractOddFrame
     """
     - **Core**
     - Frames
-    #### ImmutableOddFrame(d::Dict)
+    #### ImmutableOddFrame(d::Dict) -> ImmutableOddFrame
     Constructs an array from dictionary **d**.
-    ##### return
-    - **[1]** ::ImmutableOddFrame
     #### example
     ```
     od = ImmutableOddFrame(labels, columns, types)
@@ -460,6 +461,43 @@ struct ImmutableOddFrame <: AbstractOddFrame
     ImmutableOddFrame(d::Dict) = immutablecopy(OddFrame(d))
 end
 
+mutable struct AlgebraicOddFrame <: AbstractMutableOddFrame
+        labels::AlgebraicArray{Symbol}
+        columns::Vector{AlgebraicArray}
+        types::Array{Type}
+        head::Function
+        dtype::Function
+        not::Function
+        only::Function
+        drop!::Function
+        dtype!::Function
+        merge!::Function
+        only!::Function
+        compute::Function
+        # Super
+        function AlgebraicOddFrame(labels::Vector{Symbol},
+                columns::Vector{AlgebraicArray},
+                types::AbstractArray)
+                length_check(columns)
+                name_check(labels)
+                head, dtype, not, only = member_immutables(labels, columns,
+                                                                types)
+                drop!, dtype!, merge!, only! = member_mutables(labels,
+                columns, types)
+compute() = OddFrame([label[i] => compute(columns[i]) for i in enumerate(labels)])
+                compute(;at = 1) = [label[at] => compute(columns[at])]
+                compute(r;at = 1) = [label[at] => compute(columns[at], r)]
+compute(r) = OddFrame([label[i] => compute(columns[i], r) for i in enumerate(labels)])
+                new(labels, columns, types, head, dtype, not, only, drop!,
+                dtype!, merge!, only!, compute)
+        end
+        function AlgebraicOddFrame(n::Integer, fs::Function ...;
+                labels = [Symbol(i) for i in 1:length(fs)])
+                columns = [AlgebraicArray(f, n) for f in fs]
+                types = [typeof(col[1]) for col in columns]
+                AlgebraicOddFrame(labels, columns), types
+        end
+end
 
 
 include("member_func.jl")

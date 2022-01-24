@@ -19,6 +19,7 @@ This new update is going to focus on the last few pieces that this package needs
 -  **TODO** FIX CSV READER?!
 -  **TODO** Add better throws.
 -  **TODO** linalg
+-  **TODO** Lazy frames
 #### 0.0.7 API improvements
 - **TODO** better documentation
 - **TODO** only! is still non-mutating

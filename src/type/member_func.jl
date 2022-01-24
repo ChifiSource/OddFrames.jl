@@ -36,7 +36,10 @@ function member_immutables(labels::Vector{Symbol},
         only(ls::Symbol ...) = _only(ls, labels, columns)
         only(ls::UnitRange ...) = _only(ls, labels, columns)
         only(ls::Int64 ...) = _only(ls, labels, columns)
-        return(head, dtype, not, only)
+        apply(f::Function) = apply(f, labels, columns)
+        describe() = _describe(labels, columns)
+        describe(col::Symbol) = _describe(symb, labels, columns)
+        return(head, dtype, not, only, describe)
 end
 """
 - **Developer API**
@@ -64,6 +67,8 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         drop!(x) = _drop!(x, columns)
         drop!(x::Symbol) = _drop!(x, labels, columns, types)
         drop!(x::String) = _drop!(Symbol(x), labels, columns, types)
+        drop!(;at = 1) = _drop!(labels, columns, types, at = at)
+        drop!(f::Function) = _drop!(f, labels, columns, types)
         # dtype!
         dtype!(x::Symbol, y::Type) = _dtype!(columns[findall(x->x == x,
                                 labels)[1]], y)
@@ -72,11 +77,16 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
                                 columns, od, at)
         merge!(x::Array; at::Any = 1) = _merge!(labels, types,
                                 columns, x, at)
+        # apply!
+        apply!(f::Function; at = 1:length(labels)) = apply!(f, labels, columns,
+                                                          types, at = at)
         # only!
         only!(ls::Symbol ...) = _only!(ls, labels, columns, types)
         only!(ls::UnitRange ...) = _only!(ls, labels, columns, types)
         only!(ls::Int64 ...) = _only!(ls, labels, columns, types)
-        return(drop!, dtype!, merge!, only!)
+        # fill!
+        fill!(f::Function) = fill!(f, labels, columns, types)
+        return(drop!, dtype!, merge!, only!, apply!, fill!)
 end
 #==
 _not()
@@ -139,14 +149,10 @@ end
 Child
     methods
     ==#
-function _txthead(labels::AbstractVector, columns::AbstractVector,
-        count::Int64, coldata::AbstractVector{Pair})
-        println("Text version of head not written yet...")
-end
 function _head(labels::AbstractVector,
         columns::AbstractVector, types::AbstractVector, count::Int64;
         html = :show)
-        coldata = generate_coldata(columns, types)
+        @spawn coldata = describe(columns, types)
         if html == :none
                 return(_txthead(labels, columns, count, coldata))
         end
@@ -155,8 +161,8 @@ function _head(labels::AbstractVector,
         tbody = "<tbody>"
         # populate row headers
         [thead = string(thead, "<th ","title = \"",
-        coldata[n][2], "\">",  string(name),
-         "</th>") for (n, name) in enumerate(labels)]
+        string(coldata[name]), "\">",  string(name),
+         "</th>") for name in labels]
          # finish t-head
          thead = string(thead, "</tr></thead>")
          # populate each row iteratively.
@@ -169,8 +175,7 @@ function _head(labels::AbstractVector,
 "</td>") for (count, observ) in enumerate(obs)]
                 tbody = string(tbody, "</tr>")
          end
-         tbody = string(tbody, "</tbody>")
-         final = string("<body><table>", thead, tbody,
+         final = string("<body><table>", thead, tbody, "</tbody>",
           "</table></body>", _css)
          # Display
          # TODO: Figure out how to determine whether one is in
@@ -190,6 +195,21 @@ function _drop!(column::Symbol, labels::Array{Symbol}, columns::Array,
         deleteat!(labels, pos)
         deleteat!(types, pos)
         deleteat!(columns, pos)
+end
+function _drop!(labels::Array{Symbol}, columns::Array,
+        types::Array; at = 1)
+        pos = findall(x->x==column, labels)[1]
+        deleteat!(labels, pos)
+        deleteat!(types, pos)
+        deleteat!(columns, pos)
+end
+function _drop!(f::Function, labels::Vector{Symbol}, columns::AbstractArray,
+        types::AbstractArray)
+        bitarr = [f(col) for col in columns]
+        if length(bitarr > 1)
+                bitarr = accumuatebits(bitarr)
+        end
+        _drop!(bitarr, labels, columns, types)
 end
 function  _drop!(mask::BitArray, labels::Vector{Symbol},
          columns::AbstractArray, types::AbstractArray)
@@ -235,6 +255,46 @@ function _merge!(labels::Vector{Symbol}, types::AbstractVector,
 end
 
 
-function _fill(f::Function)
+function fill!(f::Function, labels::Vector{Symbol}, columns::AbstractVector,
+        types::AbstractVector; at = 1:length(labels))
+        for n in at
+                [push!(columns[n], f(obs), at = obs) for obs in 1:length(columns[1])]
+        end
+end
+
+function apply(f::Function, labels::Vector{Symbol}, columns::AbstractVector,
+        types::AbstractVector; at::UnitRange = 1:length(labels))
+        [apply(columns[n], f) for n in at]
+end
+
+function apply!(f::Function, labels::Vector{Symbol}, columns::AbstractVector,
+        types::AbstractVector; at::UnitRange = 1:length(labels))
+        [apply!(columns[n], f) for n in at]
+end
+
+function describe(labels::Vector{Symbol}, columns::Vector{Any})
+        pairs = []
+        for (i, T) in enumerate(types)
+                if T == String
+                        push!(pairs, T => string("Data-type: ",
+                        T, "\nFeature Type: Categorical\n",
+                        "Categories: ", length(Set(columns[i]))))
+                elseif T == Bool
+                        push!(pairs, T => string("Data-type: ",
+                        T, "\nFeature Type: Categorical\n",
+                        "Categories: ", length(Set(columns[i]))))
+                elseif length(columns[i]) / length(Set(columns[i])) <= 1.8
+                        push!(pairs, T => string("Data-type: ",
+                        T, "\nFeature Type: Continuous\n", "Mean: ",
+                        mean(columns[i])))
+                else
+                        push!(pairs, T => string("Data-type: ",
+                        T, "\nFeature Type: Categorical\n",
+                        "Categories: ", length(Set(columns[i]))))
+                end
+        end
+        pairs
+end
+function describe(col::Symbol, labels::Vector{Symbol}, columns::Vector{Any})
 
 end
