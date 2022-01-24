@@ -135,7 +135,7 @@ Removes all other columns from the OddFrame
 abstract type AbstractMutableOddFrame <: AbstractOddFrame end
 # Deps :
 import Base: show, size, length, +, merge, delete!, copy, deepcopy, Matrix
-import Base: push!, getindex, setindex!
+import Base: push!, getindex, setindex!, read
 using Base: parse
 
 using Dates

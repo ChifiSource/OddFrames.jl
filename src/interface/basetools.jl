@@ -128,9 +128,6 @@ array
 [10, 15, 20]
 ```
 """
-apply(array::AbstractArray,
- f::Function) = [array[c] = f(x) for (c, x) in enumerate(array)]
- 
-function apply!(array::AbstractArray, f::Function)
+apply(array::AbstractArray, f::Function) = [f(x) for x in array]
 
-end
+apply!(array::AbstractArray, f::Function) = [push!(array, f(val), at = i) for (i, val) in enumerate(array)]
