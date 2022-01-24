@@ -461,8 +461,8 @@ struct ImmutableOddFrame <: AbstractOddFrame
     ImmutableOddFrame(d::Dict) = immutablecopy(OddFrame(d))
 end
 
-mutable struct AlgebraicOddFrame <: AbstractMutableOddFrame
-        labels::AlgebraicArray{Symbol}
+mutable struct AlgebraicOddFrame <: AbstractAlgebraOddFrame
+        labels::Array{Symbol}
         columns::Vector{AlgebraicArray}
         types::Array{Type}
         head::Function
@@ -499,5 +499,42 @@ compute(r) = OddFrame([label[i] => compute(columns[i], r) for i in enumerate(lab
         end
 end
 
+mutable struct MLOddFrame <: AbstractAlgebraOddFrame
+        labels::Array{Symbol}
+        columns::Vector{AlgebraicArray}
+        types::Array{Type}
+        head::Function
+        dtype::Function
+        not::Function
+        only::Function
+        drop!::Function
+        dtype!::Function
+        merge!::Function
+        only!::Function
+        compute::Function
+        # Super
+        function MLOddFrame(labels::Vector{Symbol},
+                columns::Vector{AlgebraicArray},
+                types::AbstractArray)
+                length_check(columns)
+                name_check(labels)
+                head, dtype, not, only = member_immutables(labels, columns,
+                                                                types)
+                drop!, dtype!, merge!, only! = member_mutables(labels,
+                columns, types)
+compute() = OddFrame([label[i] => compute(columns[i]) for i in enumerate(labels)])
+                compute(;at = 1) = [label[at] => compute(columns[at])]
+                compute(r;at = 1) = [label[at] => compute(columns[at], r)]
+compute(r) = OddFrame([label[i] => compute(columns[i], r) for i in enumerate(labels)])
+                new(labels, columns, types, head, dtype, not, only, drop!,
+                dtype!, merge!, only!, compute)
+        end
+        function MLOddFrame(n::Integer, fs::Function ...;
+                labels = [Symbol(i) for i in 1:length(fs)])
+                columns = [AlgebraicArray(f, n) for f in fs]
+                types = [typeof(col[1]) for col in columns]
+                AlgebraicOddFrame(labels, columns), types
+        end
+end
 
 include("member_func.jl")

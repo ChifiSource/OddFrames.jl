@@ -88,6 +88,7 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         fill!(f::Function) = fill!(f, labels, columns, types)
         return(drop!, dtype!, merge!, only!, apply!, fill!)
 end
+function member_algebraic(labels::Al)
 #==
 _not()
 ==#

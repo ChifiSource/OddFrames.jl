@@ -1,7 +1,9 @@
 #==
 Algebraic types allow for expressions to store data. The only issue is that data
 has to be sorted, and furthermore, expressions compounded. Lastly, the algebraic
-expression to represent real-world data can be quite difficult to create.
+expression to represent real-world data can be quite difficult to create. I want
+to create an algorithm for this, but as such it is really hard to "invent" a
+function that handles this sort of data.
 ==#
 mutable struct AlgebraicArray
     f::Function
@@ -91,3 +93,7 @@ macro algebraic!(exp::Expr)
 end
 
 getindex(aa::AlgebraicArray, i::Any) = compute(aa, i)
+
+function iterate(aa::AlgebraicArray)
+    ret = Iterators.partition(compute(aa), 1)
+end
