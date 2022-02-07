@@ -286,9 +286,7 @@ function pivot!(od::AbstractMutableOddFrame; at::Any = 1)
                 at = axis(od, col)
         end
         if length(od[at]) != length(names(od))
-                throw(DimensionMismatch(string("Got names length of ",
-                length(names(od)), " and at length of ", length(od[at]),
-                ". These values must be equal.")))
+                throw(DimensionMismatch("Length of columns is not equal!"))
         end
         labels = od.labels
         col = od.columns[at]

@@ -1,23 +1,4 @@
-include("supporting.jl")
-"""
-- **Developer API**
-- Member Functions
-### member_immutables(labels::Vector{Symbol}, columns::AbstractVector,
-types::AbstractVector)
-Returns the non-mutating functions for an AbstractOddFrame.
-- **posarg[1]** labels::Vector{Symbol} -> The OddFrame's labels.
-- **posarg[2]** labels::Vector{Symbol} -> The OddFrame's columns.
-- **posarg[3]** labels::Vector{Symbol} -> The OddFrame's types.
-##### return
-- **[1]** ::Function -> The head function.
-- **[2]** ::Function -> dtype function.
-- **[3]** ::Function -> The not function.
-- **[4]** ::Function -> The only function.
-##### example
-```
-head, dtype, not, only = member_immutables(labels, columns, types)
-```
-"""
+
 function member_immutables(labels::Vector{Symbol},
          columns::AbstractVector, types::AbstractVector)
         # Non-mutating
@@ -41,25 +22,7 @@ function member_immutables(labels::Vector{Symbol},
         describe(col::Symbol) = _describe(symb, labels, columns)
         return(head, dtype, not, only, describe)
 end
-"""
-- **Developer API**
-- Member Functions
-### member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
-types::AbstractVector)
-Returns the mutating functions for an AbstractMutableOddFrame.
-- **posarg[1]** labels::Vector{Symbol} -> The OddFrame's labels.
-- **posarg[2]** labels::Vector{Symbol} -> The OddFrame's columns.
-- **posarg[3]** labels::Vector{Symbol} -> The OddFrame's types.
-##### return
-- **[1]** ::Function -> The drop! function
-- **[2]** ::Function -> The dtype! function.
-- **[3]** ::Function -> The merge! function.
-- **[4]** ::Function -> The only! function.
-##### example
-```
-drop!, dtype!, merge!, only! = member_mutables(labels, columns, types)
-```
-"""
+
 function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         types::AbstractVector)
         # Mutating
@@ -88,25 +51,13 @@ function member_mutables(labels::Vector{Symbol}, columns::AbstractVector,
         fill!(f::Function) = fill!(f, labels, columns, types)
         return(drop!, dtype!, merge!, only!, apply!, fill!)
 end
-function member_algebraic(labels::Al)
+function member_algebraic(labels::Vector{Symbol}, columns::AbstractArray,
+        types::AbstractArray)
+
+end
 #==
 _not()
 ==#
-"""
-- **Developer API**
-- Member Functions
-### _not()
-Returns the non-mutating functions for an AbstractOddFrame.
-- **posarg[1]** labels::Vector{Symbol} -> The OddFrame's labels.
-- **posarg[2]** labels::Vector{Symbol} -> The OddFrame's columns.
-- **posarg[3]** labels::Vector{Symbol} -> The OddFrame's types.
-##### return
-- **[1]** ::OddFrame
-##### example
-```
-head, dtype, not, only = member_immutables(labels, columns, types)
-```
-"""
 function _not(i::Tuple{Symbol}, labels::Vector{Symbol}, columns::AbstractArray)
         mask = [! (val in i) for val in labels]
         nlabels = labels[mask]
@@ -153,7 +104,7 @@ Child
 function _head(labels::AbstractVector,
         columns::AbstractVector, types::AbstractVector, count::Int64;
         html = :show)
-        @spawn coldata = describe(columns, types)
+        coldata _describe(columns, types)
         if html == :none
                 return(_txthead(labels, columns, count, coldata))
         end
@@ -226,8 +177,7 @@ function _dtype!(column, y)
 try
         [y(i) for i in column]
 catch
-throw(TypeError("column type casting",
-         y, column[1]))
+throw(TypeError("column type casting", y, column[1]))
  end
 end
 
@@ -275,25 +225,7 @@ end
 
 function describe(labels::Vector{Symbol}, columns::Vector{Any})
         pairs = []
-        for (i, T) in enumerate(types)
-                if T == String
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Categorical\n",
-                        "Categories: ", length(Set(columns[i]))))
-                elseif T == Bool
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Categorical\n",
-                        "Categories: ", length(Set(columns[i]))))
-                elseif length(columns[i]) / length(Set(columns[i])) <= 1.8
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Continuous\n", "Mean: ",
-                        mean(columns[i])))
-                else
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Categorical\n",
-                        "Categories: ", length(Set(columns[i]))))
-                end
-        end
+
         pairs
 end
 function describe(col::Symbol, labels::Vector{Symbol}, columns::Vector{Any})
