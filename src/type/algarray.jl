@@ -1,16 +1,12 @@
-#==
-Algebraic types allow for expressions to store data. The only issue is that data
-has to be sorted, and furthermore, expressions compounded. Lastly, the algebraic
-expression to represent real-world data can be quite difficult to create. I want
-to create an algorithm for this, but as such it is really hard to "invent" a
-function that handles this sort of data.
-==#
 mutable struct AlgebraicArray
     f::Function
     n::Int64
     calls::Vector{Pair{Function, Tuple}}
     function AlgebraicArray(f::Function, n::Int64)
         new(f, n, [])
+    end
+    function AlgebraicArray()
+        
     end
 end
 
@@ -39,16 +35,14 @@ end
 
 function generate(aa::AlgebraicArray, range::UnitRange)
     if range[2] > aa.n
-        throw(BoundsError(string("Invalid algebraic index, ", string(range[2],
-                        " on algebraic expression of length ", string(aa.n)))))
+        throw(BoundsError("Invalid algebraic index!"))
     end
     [aa.f(n) for n in range]
 end
 
 function generate(aa::AlgebraicArray, index::Integer)
     if index > aa.n
-        throw(BoundsError(string("Invalid algebraic index, ", string(range[2],
-                        " on algebraic expression of length ", string(aa.n)))))
+        throw(string("Invalid algebraic index!"))
     end
     aa.f(index)[1]
 end

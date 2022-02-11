@@ -273,9 +273,8 @@ fg[1]
 """
 getindex(fg::OddFrameContainer, axis::Int64) = fg.ods[axis]
 
-function getindex(od::AbstractOddFrame, observation::Int64; at = 1)
-        od[at][observation]
-end
+getindex(od::AbstractOddFrame, observation::Int64; at = 1) = od[at][observation]
+
 function iterate(od::AbstractOddFrame)
-    ret = Iterators.partition(compute(aa), 1)
+    ret = Iterators.partition(od.columns, 1)
 end

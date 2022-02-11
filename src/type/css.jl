@@ -1,4 +1,4 @@
-_css = "
+_css = """
 <style>
 body {
     background: #fafafa url(https://jackrugile.com/images/misc/noise-diagonal.png);
@@ -110,4 +110,4 @@ tbody:hover tr:hover td {
     text-shadow: 0 1px 0 #fff;
 }
 </style>
-"
+"""

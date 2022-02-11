@@ -21,10 +21,11 @@ function _txthead(labels::AbstractVector, columns::AbstractVector,
         count::Int64, coldata::AbstractVector{Pair})
         println("Text version of head not written yet...")
 end
+
 function accumulatebits(bits::AbstractArray{BitArray})
         newbits = []
         for val in enumerate(bits[1])
-                mu = mean([bit[val]] for bit in bits])
+                mu = mean([bit[val] for bit in bits])
                 if mu != 1
                         push!(newbits, 0)
                 else
