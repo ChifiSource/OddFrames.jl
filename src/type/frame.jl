@@ -12,14 +12,13 @@ mutable struct OddFrame <: AbstractMutableOddFrame
         dtype::Function
         not::Function
         only::Function
-        apply::Function
-        fill::Function
         describe::Function
         drop!::Function
         dtype!::Function
         merge!::Function
         only!::Function
         apply!::Function
+        fill!::Function
         #==
         Constructors
         ==#
@@ -30,12 +29,13 @@ mutable struct OddFrame <: AbstractMutableOddFrame
                 types::AbstractArray)
                 length_check(columns)
                 name_check(labels)
-                head, dtype, not, only = member_immutables(labels, columns,
+                head, dtype, not, only, describe = member_immutables(labels, columns,
                                                                 types)
-                drop!, dtype!, merge!, only! = member_mutables(labels,
+                drop!, dtype!, merge!, only!, apply!, fill! = member_mutables(labels,
                 columns, types)
-                return(new(labels, columns, types, head, dtype, not, only, drop!,
-                dtype!, merge!, only!))
+                return(new(labels, columns, types, head, dtype, not, only, describe,
+                drop!,
+                dtype!, merge!, only!, apply!, fill!))
         end
 
         function OddFrame()

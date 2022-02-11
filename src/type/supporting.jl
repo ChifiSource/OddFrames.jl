@@ -25,12 +25,12 @@ end
 function accumulatebits(bits::AbstractArray{BitArray})
         newbits = []
         for val in enumerate(bits[1])
-                mu = mean([bit[val] for bit in bits])
+                mu = mean([bits[val] for bit in bits])
                 if mu != 1
                         push!(newbits, 0)
                 else
                         push!(newbits, mu)
                 end
         end
-        newbits
+        BitArray(newbits)
 end

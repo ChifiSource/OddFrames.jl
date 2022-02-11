@@ -18,8 +18,8 @@ function member_immutables(labels::Vector{Symbol},
         only(ls::UnitRange ...) = _only(ls, labels, columns)
         only(ls::Int64 ...) = _only(ls, labels, columns)
         apply(f::Function) = apply(f, labels, columns)
-        describe() = _describe(labels, columns)
-        describe(col::Symbol) = _describe(symb, labels, columns)
+        describe() = _describe(labels, columns, types)
+        describe(col::Symbol) = _describe(symb, labels, columns, types)
         return(head, dtype, not, only, describe)
 end
 
@@ -104,11 +104,10 @@ Child
 function _head(labels::AbstractVector,
         columns::AbstractVector, types::AbstractVector, count::Int64;
         html = :show)
-        coldata _describe(columns, types)
+        coldata = _describe(labels, columns, types)
         if html == :none
                 return(_txthead(labels, columns, count, coldata))
         end
-        # Create t-header and t-body tags
         thead = "<thead><tr>"
         tbody = "<tbody>"
         # populate row headers
@@ -122,7 +121,7 @@ function _head(labels::AbstractVector,
                  obs = [row[i] for row in columns]
                  tbody = string(tbody, "<tr>")
                  [tbody = string(tbody, "<td ",
-                 "title = \"", coldata[count][2], "\">"
+                 "title = \"", coldata[labels[count]][2], "\">"
                  , observ,
 "</td>") for (count, observ) in enumerate(obs)]
                 tbody = string(tbody, "</tr>")
@@ -157,16 +156,23 @@ function _drop!(labels::Array{Symbol}, columns::Array,
 end
 function _drop!(f::Function, labels::Vector{Symbol}, columns::AbstractArray,
         types::AbstractArray)
-        bitarr = [f(col) for col in columns]
-        if length(bitarr > 1)
-                bitarr = accumuatebits(bitarr)
+        bits = []
+        for col in columns
+                bitarr = [f(x) for x in col]
+                push!(bits, bitarr)
         end
-        _drop!(bitarr, labels, columns, types)
+        println(bits)
+        if length(columns) > 1
+                bits = accumulatebits(bits)
+        else
+                bits = bits[1]
+        end
+        _drop!(BitArray(bits), labels, columns, types)
 end
 function  _drop!(mask::BitArray, labels::Vector{Symbol},
          columns::AbstractArray, types::AbstractArray)
         pos = findall(x->x==0, mask)
-        _drop(pos, column, labels, types)
+        _drop!(pos, column, labels, types)
 end
 function _drop!(row::Int64, columns::Array, labels::Vector{Symbol},
         types::Array{Type})
@@ -223,31 +229,31 @@ function apply!(f::Function, labels::Vector{Symbol}, columns::AbstractVector,
         [apply!(columns[n], f) for n in at]
 end
 
-function describe(labels::Vector{Symbol}, columns::Vector{Any})
-        pairs = []
-
-        pairs
+function _describe(labels::Vector{Symbol}, columns::AbstractVector,
+         types::AbstractVector)
+         pairs = Dict()
+         for (i, T) in enumerate(types)
+                 if T == String
+                         push!(pairs, labels[i] => string("Data-type: ",
+                         T, "\nFeature Type: Categorical\n",
+                         "Categories: ", length(Set(columns[i]))))
+                 elseif T == Bool
+                         push!(pairs, T => string("Data-type: ",
+                         T, "\nFeature Type: Categorical\n",
+                         "Categories: ", length(Set(columns[i]))))
+                 elseif length(columns[i]) / length(Set(columns[i])) <= 1.8
+                         push!(pairs, labels[i] => string("Data-type: ",
+                         T, "\nFeature Type: Continuous\n", "Mean: ",
+                         mean(columns[i])))
+                 else
+                         push!(pairs, labels[i] => string("Data-type: ",
+                         T, "\nFeature Type: Categorical\n",
+                         "Categories: ", length(Set(columns[i]))))
+                 end
+         end
+         pairs
 end
-function describe(col::Symbol, labels::Vector{Symbol}, columns::Vector{Any})
-        pairs = []
-        for (i, T) in enumerate(types)
-                if T == String
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Categorical\n",
-                        "Categories: ", length(Set(columns[i]))))
-                elseif T == Bool
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Categorical\n",
-                        "Categories: ", length(Set(columns[i]))))
-                elseif length(columns[i]) / length(Set(columns[i])) <= 1.8
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Continuous\n", "Mean: ",
-                        mean(columns[i])))
-                else
-                        push!(pairs, T => string("Data-type: ",
-                        T, "\nFeature Type: Categorical\n",
-                        "Categories: ", length(Set(columns[i]))))
-                end
-        end
-        pairs
+function _describe(col::Symbol, labels::Vector{Symbol}, columns::AbstractVector,
+        types::AbstractVector)
+
 end
