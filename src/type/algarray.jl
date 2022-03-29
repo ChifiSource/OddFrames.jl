@@ -6,7 +6,7 @@ mutable struct AlgebraicArray
         new(f, n, [])
     end
     function AlgebraicArray()
-        
+
     end
 end
 

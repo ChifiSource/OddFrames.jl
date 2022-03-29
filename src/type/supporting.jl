@@ -22,15 +22,15 @@ function _txthead(labels::AbstractVector, columns::AbstractVector,
         println("Text version of head not written yet...")
 end
 
-function accumulatebits(bits::AbstractArray{BitArray})
+function accumulatebits(bits::AbstractArray)
         newbits = []
-        for val in enumerate(bits[1])
-                mu = mean([bits[val] for bit in bits])
+        for (count, val) in enumerate(bits[1])
+                mu = mean([bits[count] for bit in bits])
                 if mu != 1
                         push!(newbits, 0)
                 else
                         push!(newbits, mu)
                 end
         end
-        BitArray(newbits)
+        return(BitArray(newbits))
 end
