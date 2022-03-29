@@ -3,13 +3,9 @@ Iterators
 ===#
 """
 - **Interface**
-- Indexing and Iteration
-### frames(fg::OddFrameContainer)
-This quickly returns an iterable Array of the frames in a framegroup.
-- **posarg[1]** fg::AbstractOddFrameContainer => The fg should be the frame
-group you want to get the frames of.
-##### return
-- **[1]** ::Array{OddFrame} => Array of OddFrames that were contained in fg.
+- Iteration
+### frames(fg::OddFrameContainer) -> ::Array{OddFrame}
+This quickly returns an iterable Array of the oddframes in a framegroup.
 ##### example
 ```
 labels = [:od1, :od2]
@@ -19,16 +15,12 @@ ods = frames(fg)
 ```
 """
 frames(fg::OddFrameContainer) = fg.ods
+
 """
 - **Interface**
-- Indexing and Iteration
-### columns(od::AbstractOddFrame)
-This quickly returns an iterable Array of the columns in an OddFrame.
-- **posarg[1]** od::AbstractOddFrame => The OddFrame we wish to get the columns
-of.
-##### return
-- **[1]** ::Array{AbstractArray} => A 1-dimensional array of 1-dimensional
-features.
+- Iteration
+### columns(od::AbstractOddFrame) -> ::Array{AbstractArray}
+Returns an iterable Array of the columns in an OddFrame.
 ##### example
 ```
 od = OddFrame(:A => [1, 2, 3], :B => [5, 8, 3])
@@ -38,15 +30,12 @@ columns(od)
 ```
 """
 columns(od::AbstractOddFrame) = od.columns
+
 """
 - **Interface**
-- Indexing and Iteration
-### labels(od::AbstractOddFrame)
-This quickly returns an iterable Array of the labels in an OddFrame.
-- **posarg[1]** od::AbstractOddFrame => The OddFrame we wish to get the columns
-of.
-##### return
-- **[1]** ::Array{Symbol} => A 1-dimensional array of labels, Symbols.
+- Iteration
+### labels(od::AbstractOddFrame) -> ::Vector{Symbol}
+Returns an iterable Array of the labels in an OddFrame.
 ##### example
 ```
 od = OddFrame(:A => [1, 2, 3], :B => [5, 8, 3])
@@ -56,15 +45,12 @@ labels(od)
 ```
 """
 labels(od::AbstractOddFrame) = od.labels
+
 """
 - **Interface**
-- Indexing and Iteration
-### labels(fg::OddFrameContainer)
-This quickly returns an iterable Array of the frames in a framegroup.
-- **posarg[1]** fg::OddFrameContainer => The fg should be the frame
-group you want to get the labels of.
-##### return
-- **[1]** ::Array{Symbol} => Array of the labels inside the FrameGroup.
+- Iteration
+### labels(fg::OddFrameContainer) -> ::Vector{Symbol}
+This quickly returns an iterable Array of the frames' labels in a framegroup.
 ##### example
 ```
 labels = [:od1, :od2]
@@ -76,60 +62,16 @@ labels(fg)
 ```
 """
 labels(fg::AbstractOddFrame) = fg.labels
-"""
-### from OddFrames names(od::AbstractOddFrame)
-- **Interface**
-- Indexing and Iteration
-### names(od::AbstractOddFrame)
-names() is just a binding for labels(). It returns an array of the labels
-found on the OddFrame.
-- **posarg[1]** od::AbstractOddFrame => The OddFrame we wish to get the columns
-of.
-##### return
-- **[1]** ::Array{Symbol} => A 1-dimensional array of labels, Symbols.
-##### example
-```
-od = OddFrame(:A => [1, 2, 3], :B => [5, 8, 3])
-names(od)
 
-[:A, :B]
-```
-"""
-names(od::AbstractOddFrame) = od.labels
-"""
-- **Interface**
-- Indexing and Iteration
-### names(fg::OddFrameContainer)
-names() is just a binding for labels(). It returns an array of the labels
-found on the OddFrame.
-- **posarg[1]** fg::OddFrameContainer => The fg should be the frame
-group you want to get the labels of.
-##### return
-- **[1]** ::Array{Symbol} => Array of the labels inside the FrameGroup.
-##### example
-```
-labels = [:od1, :od2]
-fg = FrameGroup(OddFrame(:y => [5, 8, 2]), OddFrame(:x => [5, 15]),
-labels = labels)
-names(fg)
-
-[:od1, :od2]
-```
-"""
-names(fg::OddFrameContainer) = [label for label in fg.labels]
 #===
 Indexing
 ===#
 """
 - **Interface**
-- Indexing and Iteration
-### getindex(od::AbstractOddFrame, col::Symbol)
+- Indexing
+### getindex(od::AbstractOddFrame, col::Symbol) -> ::Array{Any}
 Gets the corresponding index of columns from col's position in labels. Returns a
 1-D array of the column's data.
-- **posarg[1]** od::AbstractOddFrame => The OddFrame we are indexing.
-- **posarg[2]** col::Symbol => The column we would like to select.
-##### return
-- **[1]** ::Array{Any} => Values corresponding to index col.
 ##### example
 ```
 od = OddFrame(:A => [5, 10, 15])
@@ -141,16 +83,13 @@ function getindex(od::AbstractOddFrame, col::Symbol)
         pos = findall(x->x==col, od.labels)[1]
         return(od.columns[pos])
 end
+
 """
 - **Interface**
-- Indexing and Iteration
-### getindex(od::AbstractOddFrame, col::String)
+- Indexing
+### getindex(od::AbstractOddFrame, col::String) -> ::Array{Any}
 Gets the corresponding index of columns from col's position in labels. Returns a
 1-D array of the column's data.
-- **posarg[1]** od::AbstractOddFrame => The OddFrame we are indexing.
-- **posarg[2]** col::String => The column we would like to select.
-##### return
-- **[1]** ::Array{Any} => Values corresponding to index col.
 ##### example
 ```
 od = OddFrame(:A => [5, 10, 15])
@@ -159,10 +98,11 @@ od["A"]
 ```
 """
 getindex(od::AbstractOddFrame, col::String) = od[Symbol(col)]
+
 """
 - **Interface**
 - Indexing and Iteration
-### getindex(od::AbstractOddFrame, axis::Int64)
+### getindex(od::AbstractOddFrame, axis::Int64) -> ::Array{Any}
 Gets the corresponding index of columns from col's position in on the axis.
 1-D array of the column's data.
 - **posarg[1]** od::AbstractOddFrame => The OddFrame we are indexing.
@@ -177,16 +117,12 @@ od[1]
 ```
 """
 getindex(od::AbstractOddFrame; at = axis::Int64) = od.columns[axis]
+
 """
 - **Interface**
-- Indexing and Iteration
-### getindex(od::AbstractOddFrame, axis::UnitRange)
-Indexing with UnitRange allows us to select multiple columns by axis.
-- **posarg[1]** od::AbstractOddFrame => The OddFrame we are indexing.
-- **posarg[2]** col::UnitRange => Range of axises to select.
-##### return
-- **[1]** ::Array{Any} => Array of values corresponding to the columns given in
-the range.
+- Indexing
+### getindex(od::AbstractOddFrame, axis::UnitRange) -> ::Vector{Array{any}}
+Indexing Returns all columns within range **at**.
 ##### example
 ```
 od = OddFrame(:A => [5, 10, 15], :B => [5, 10, 15])
@@ -195,16 +131,13 @@ od[1:2]
 ```
 """
 getindex(od::AbstractOddFrame; at = range::UnitRange) = columns(od.only(range))
+
 """
 - **Interface**
-- Indexing and Iteration
-### getindex(od::AbstractOddFrame, mask::BitArray)
+- Indexing
+### getindex(od::AbstractOddFrame, mask::BitArray) -> ::OddFrame
 Drops values when mask's equivalent index is false. Can be used to filter data.
-found on the OddFrame.
-- **posarg[1]** od::AbstractOddFrame => The OddFrame we are indexing.
-- **posarg[2]** mask::BitArray => The mask we would like to apply
-##### return
-- **[1]** ::OddFrame => A post-filtered OddFrame. Always returns a mutable copy.
+found on the OddFrame. Does not mutate the data, provides a return.
 ##### example
 ```
 od = OddFrame(:A => [5, 10, 15])
@@ -220,16 +153,12 @@ function getindex(od::AbstractOddFrame, mask::BitArray)
         [od.drop!(p) for p in pos]
         return(od)
 end
+
 """
 - **Interface**
-- Indexing and Iteration
-### setindex!(od::AbstractMutableOddFrame, T::Type, i::Int64)
-Sets the type of a given column to a new type based on the axis.
-- **posarg[1]** od::AbstractMutableOddFrame => The OddFrame we are manipulating.
-- **posarg[2]** T::Type => The type we wish to cast.
-- **posarg[3]** i::Int64 => The axis which we would like to cast.
-##### return
-Mutates the AbstractMutableOddFrame, od.
+- Indexing
+### setindex!(od::AbstractMutableOddFrame, T::Type, i::Int64) -> mutates od
+Sets the type of a given column **i** on **od** to a new type based on the axis.
 ##### example
 ```
 od = OddFrame(:A => [5, 10, 15])
@@ -250,16 +179,12 @@ function setindex!(od::AbstractMutableOddFrame, T::Type, i::Int64)
                 end
         end
 end
+
 """
 - **Interface**
-- Indexing and Iteration
-### getindex(fg::OddFrameContainer, axis::Int64)
+- Indexing
+### getindex(fg::OddFrameContainer, axis::Int64) -> OddFrame
 Used to select individual OddFrames from an OddFrameContainer's ods vector.
-- **posarg[1]** fg::OddFrameContainer => The OddFrameContainer we are indexing.
-- **posarg[2]** axis::Int64 => The axis at which we would like to select from
-our OddFrameContainer.
-##### return
-- **[1]** ::OddFrame => The OddFrame stored at the index of **axis**.
 #### example
 ```
 od = OddFrame(:A => [5, 10, 15])
@@ -273,8 +198,37 @@ fg[1]
 """
 getindex(fg::OddFrameContainer, axis::Int64) = fg.ods[axis]
 
+"""
+- **Interface**
+- Indexing
+### getindex(od::AbstractOddFrame, observation::Int64, at = 1) -> ::Any
+Used to select an observation **observation** from column **at** on **od**.
+#### example
+```
+od = OddFrame(:A => [5, 10, 15], :B => [8, 12, 10])
+od[1, at = 1]
+
+5
+```
+"""
 getindex(od::AbstractOddFrame, observation::Int64; at = 1) = od[at][observation]
 
+"""
+- **Interface**
+- Iteration
+### iterate(fg::OddFrameContainer, axis::Int64) -> ::Any
+Partitions OddFrame columns to be iterated.
+#### example
+```
+od = OddFrame(:A => [5, 10, 15])
+od2 = OddFrame(:B => [5, 10, 11])
+fg = FrameGroup(od, od2)
+
+fg[1]
+
+[5, 10, 15]
+```
+"""
 function iterate(od::AbstractOddFrame)
-    ret = Iterators.partition(od.columns, 1)
+    Iterators.partition(od.columns, 1)
 end
