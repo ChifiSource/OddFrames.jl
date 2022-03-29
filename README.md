@@ -51,4 +51,4 @@ A key focus of OddFrames.jl is keeping memory usage low while still allowing for
  ### Modern Data Science
 I think that all UI components, especially for something like a table, should always be at least moderately tasteful in appearance. I want information on my data, but I do not want my data to scream about itself into my ear. I understand these concepts, therefore my design is geared towards such a thing. There are so many DataFrames packages that just do not at all have support for image-dataframes, which is ridiculously common now.
 ### BIG Data
-In terms of memory efficiency, OddFrames typically take up the same amount of memory as a DataFrame from DataFrames.jl. However, where things become different is with the MLOddFrame and AlgebraicOddFrame types respectively. These two types allow one to create an OddFrame from both models and algebraic expressions.
+In terms of memory efficiency, OddFrames typically take up the same amount of memory as a DataFrame from DataFrames.jl. However, where things become different is with the AlgebraicOddFrame and other handy ways to manage memory.
