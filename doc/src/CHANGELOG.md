@@ -1,53 +1,18 @@
 # CHANGES
 ### Labels - Bug fix - TODO - TODO C (TODO Carryover)
-#### 
-#### 0.0.8 Wrapping & testing
-This new update is going to focus on the last few pieces that this package needs to implement to get going. As a result, it will be reserved to the TODOs that exist here and now, as well as bug fixes that might hinder doing  these TODOS. That being said, 0.0.9 will basically be a " finishing touches" update to ensure everything is up to speed for a release.
-- **TODO** better documentation
-- **TODO** only! is still non-mutating
-- **TODO** apply!() should become the mutating version of apply **DONE**
-- **TODO** Readers for more data.
-- **TODO C** Parsing for more data-types
-- **TODO** general performance-related gloss-over. Need to improve a lot of functions.
-- **TODO** Finish testing
-- **TODO** Finish all documentation
-- **TODO** Coldata -> od.describe(::Symbol) **DONE**
-- **TODO** In-REPL markdown table. Need a way to find out if someone is in a visual interface.
--  **TODO C** Add more information for dates and times, and other feature-types.
--  **TODO C** Add _head(::UnitRange), so you can view less columns at a time.
--  **TODO C** Add image URI to feature-types.
--  **TODO** Add More FrameGroup methods
--  **TODO** FIX CSV READER?!
--  **TODO** Add better throws.
--  **TODO** linalg
--  **TODO** Lazy frames **DONE**
-#### 0.0.7 API improvements
-- **TODO** better documentation
-- **TODO** only! is still non-mutating
-- **TODO** apply!() should become the mutating version of apply
-- **TODO** Readers for more data.
-- **TODO C** Parsing for more data-types
-- **TODO** general performance-related gloss-over. Need to improve a lot of functions.
-- **TODO** Finish testing
-- **TODO** Finish all documentation
-- **TODO** Coldata -> od.describe(::Symbol)
-- **TODO** In-REPL markdown table. Need a way to find out if someone is in a visual interface.
--  **TODO C** Add more information for dates and times, and other feature-types.
--  **TODO C** Add _head(::UnitRange), so you can view less columns at a time.
--  **TODO C** Add image URI to feature-types.
-- Functions, need fill and mask functions.
-- Implement fill().
-- od.apply(::Symbol) for applying to an OddFrame column, rather than the full OD. Continue this logic.
-- Added not, only, not!, only!()
-- Added apply, apply!()
-- Added basic documentation
-- Added copying
-- Added basic testing
-- Added fill functions.
-- Removed dropna!() in favor of drop!(na)
-- Added Frame Groups
-- Added base extensions
-- **Bug fix** fixed dispatch call bugs on some constructors.
+####
+#### 0.0.8 Rework adjustment
+- All kinds of things reworked on the back-end
+- Documentation overhaul
+- drop!() etc. calls with functions.
+#### 0.0.7 Enhancing assets, extending methods.
+- **TODO C** Add more information and type casting for dates, times, and other feature-types.
+- **TODO C** Add image_URI, Dates, and more to feature types.
+- **TODO C** Add majority for classes
+**TODO** Write test portion.
+**TODO** Finish all documentation.
+**TODO** fill()/fill!() with some fill functions.
+**TODO** Add more casts
 #### 0.0.6 Enriched API
 - **TODO C** Add more information for dates and times, and other feature-types.
 - **TODO C** Add majority class for classes.
