@@ -1,4 +1,6 @@
-# Type Heirarchy
+
+# The OddFrame
+## Type Heirarchy
 OddFrames are a name given to any type that is a sub-type of **AbstractOddFrame**.
 AbstractOddFrames must all hold the following fields:
 - labels::Array/Tuple{Symbol}
@@ -12,7 +14,6 @@ AbstractOddFrames must all hold the following fields:
 ```@docs
 AbstractOddFrame
 ```
-# AbstractMutableOddFrame
 **AbstractMutableOddFrame** is similar to **AbstractOddFrame**, only
 requires that both the OddFrame and its values are mutable. Along with
 this comes these additional features, some of which are shared with
@@ -34,14 +35,14 @@ this comes these additional features, some of which are shared with
 ```@docs
 OddFrames.AbstractMutableOddFrame
 ```
-# Types
+## Types
 ```@docs
 OddFrame
 ```
 ```@docs
 ImmutableOddFrame
 ```
-# Indexing
+## Indexing
 Indexing in Oddframes.jl has a few key consistencies that are
 universal in the package and important to note. The first of these
 is the different types you can index with. The operation of the
@@ -90,7 +91,7 @@ getindex(::AbstractOddFrame, ::UnitRange)
 ```
 These same indexing ideas carry into the member functions and the rest of the
 module, so it is certainly something to pay attention to.
-# Iteration
+## Iteration
 Iteration using OddFrames.jl is also incredibly simple. There are a few
 ways we can iterate an OddFrame. By default, iterating over the OddFrame will
 loop the columns of the OddFrame.
@@ -105,7 +106,7 @@ columns(::AbstractOddFrame)
 ```@docs
 labels(::AbstractOddFrame)
 ```
-# Member Functions
+## Member Functions
 OddFrames have member functions. These functions are provided as fields
 of the OddFrame. That being said, you can access them how you normally
 would with fields. The advantage to this is that we can mutate the
@@ -114,7 +115,7 @@ OddFrame internally. For example, here is a call of head:
 od = OddFrame(:A => [5, 10, 15, 20])
 od.head(5)
 ```
-## Non-mutating Member Functions
+### Non-mutating Member Functions
 These functions can return a mutated frame, but will not mutate the data inside
 of the OddFrame.
 #### Introspective
@@ -160,7 +161,7 @@ Apply will apply **f** to the columns.
 ```@example
 apply(f::Function) = apply(f, labels, columns)
 ```
-## Mutating Member Functions
+### Mutating Member Functions
 These functions will mutate your type! Be careful!
 #### drop!
 The drop! function can drop a column, row, or values that meet certain parameters with a BitArray/Function.
@@ -173,8 +174,39 @@ drop!(f::Function) = _drop!(f, labels, columns, types)
 ```
 #### dtype!
 The dtype! function will attempt to parse all of the values in **x**
-to type **T**
+to type **T**.
 ```@example
 dtype!(x::Symbol, T::Type) = _dtype!(columns[findall(x->x == x,
                         labels)[1]], T)
+```
+#### join!
+The join! function can be used to join either an array or OddFrame to
+an OddFrame.
+```@example
+join!(od::OddFrame; at::Any = 1) = _join!(labels, types,
+                        columns, od, at)
+join!(x::Array; at::Any = 1) = _join!(labels, types,
+                        columns, x, at)
+```
+#### apply!
+Applies the function **f** to **at**.
+```@example
+apply!(f::Function; at = 1:length(labels)) = _apply!(f, labels, columns,
+                                                  types, at = at)
+```
+#### only!
+Removes all columns except **ls**
+```@example
+only!(ls::Symbol ...) = _only!(ls, labels, columns, types)
+only!(ls::UnitRange ...) = _only!(ls, labels, columns, types)
+only!(ls::Int64 ...) = _only!(ls, labels, columns, types)
+```
+#### fill!
+Fills OddFrame with **f**.
+```@example
+fill!(f::Function) = fill!(f, labels, columns, types)
+```
+# Casts
+```@docs
+Matrix(::AbstractOddFrame)
 ```
