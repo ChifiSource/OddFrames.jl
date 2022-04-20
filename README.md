@@ -1,8 +1,7 @@
-<div align="center">
+<div align="left">
   <img src="https://github.com/ChifiSource/OddFrames.jl/blob/Unstable/assets/logo.png" width = 300 height = 300>
-  <h1>OddFrames.jl</h1>
-
  </div>
+ <div align = "left">
  
  
   **OddFrames.jl** is a new package for managing your data in Julia. Light enough to be a dependency on any project, yet rich enough to get the job done. OddFrames.jl is a selectively object-oriented data-management framework for manipulating, scaling, automating, and building data for scientific use. What makes OddFrames.jl unique, and why not just use the wonderfully robust [DataFrames.jl](https://github.com/JuliaData/DataFrames.jl)? Good question. Although DataFrames.jl is a great, and more mature data-management interface, the goals of the package are inheritly different to the goals of this package. We start at the same base, in-memory tabular data, but looking at both methodology and features, things quickly change. As such, in some cases, DataFrames.jl may be the better tool for the job, and if this happens to be your first time using Julia, I would recommend learning DataFrames.jl **first**, though that certainly is not necessary. OddFrames.jl comes with the following special features, unlike DataFrames.jl:
