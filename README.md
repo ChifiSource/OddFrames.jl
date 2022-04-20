@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/ChifiSource/OddFrames.jl/blob/Unstable/assets/oddframes.png" width = 300 height = 300>
+  <img src="https://github.com/ChifiSource/OddFrames.jl/blob/Unstable/assets/logo.png" width = 300 height = 300>
   <h1>OddFrames.jl</h1>
 
  </div>
